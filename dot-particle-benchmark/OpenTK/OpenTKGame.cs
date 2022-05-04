@@ -22,7 +22,7 @@ namespace Core.Particles
 		{
             var settings = new ParticleSystemSettings()
             {
-                MaxParticles = 500000,
+                MaxParticles = 1000,
                 StartSpeed = 0f,
                 StartSize = 64f
             };
@@ -33,11 +33,11 @@ namespace Core.Particles
 
             var emitterSettings = new EmitterSettings()
             {
-                RateOverTime = 10000,
-                Shape = new Shapes.Rectangle() { Size = new System.Numerics.Vector2(1f, 1f) }
+                RateOverTime = 100,
+                Shape = new Shapes.Rectangle() { Size = new System.Numerics.Vector2(2f, 2f) }
             };
             emitter = new Emitter(emitterSettings, _particleSystem);
-            emitter.Position = new System.Numerics.Vector2(-0.5f, -0.5f);
+            emitter.Position = new System.Numerics.Vector2(-1f, -1f);
             _particleSystem.SpawnParticle(0.1f, 0.1f,0,0.1f,0.1f);
 
             renderer = new RendererOpenTK(_particleSystem);
@@ -60,13 +60,14 @@ namespace Core.Particles
             renderer.Draw();
 
             SwapBuffers();
+            Debug.WriteLine(1f / e.Time);
+
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-            Debug.WriteLine(_particleSystem.particles.PositionX[0]);
-
+            
             emitter.Update((float)e.Time);
         }
         

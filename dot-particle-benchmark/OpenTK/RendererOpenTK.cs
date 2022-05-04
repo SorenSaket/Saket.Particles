@@ -10,6 +10,7 @@ namespace Core.Particles.Rendering
 	class RendererOpenTK 
 	{
 		private int _vertexArrayObject;
+		private int _quadBufferObject;
 		private int _vertexPositionXBufferObject;
 		private int _vertexPositionYBufferObject;
 
@@ -19,39 +20,50 @@ namespace Core.Particles.Rendering
 
 		private ParticleSystem system;
 
+
+		const float size = 0.01f;
 		float[] quadVertices = new float[]{
 			// positions
-			-0.05f,  0.05f,
-			 0.05f, -0.05f,
-			-0.05f, -0.05f,
+			-size,  size,
+			 size, -size,
+			-size, -size,
 
-			-0.05f,  0.05f,
-			 0.05f, -0.05f,
-			 0.05f,  0.05f,
+			-size,  size,
+			 size, -size,
+			 size,  size,
 		};
 
 		public RendererOpenTK(ParticleSystem system)
 		{
 			this.system = system;
 			if (ShaderParticle == null)
-				ShaderParticle = new Shader("Assets/Shaders/Particle/vertex.glsl", "Assets/Shaders/Particle/fragment.glsl", "Assets/Shaders/Particle/geometry.glsl"); // 
-																															 
+				ShaderParticle = new Shader("Assets/Shaders/Particle/vertex.glsl", "Assets/Shaders/Particle/fragment.glsl"); // , "Assets/Shaders/Particle/geometry.glsl"
+
 			_vertexArrayObject = GL.GenVertexArray();
 			GL.BindVertexArray(_vertexArrayObject);
+
+			// QuadVert buffer
+			_quadBufferObject = GL.GenBuffer();
+			GL.BindBuffer(BufferTarget.ArrayBuffer, _quadBufferObject);
+			GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * quadVertices.Length, quadVertices, BufferUsageHint.StaticDraw);
+			GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, sizeof(float)*2, 0);
+			GL.EnableVertexAttribArray(0);
 
 			// X pos buffer
 			_vertexPositionXBufferObject = GL.GenBuffer();
 			GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionXBufferObject);
 			GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), system.particles.PositionX, BufferUsageHint.StreamDraw);
-			GL.VertexAttribPointer(0, 1, VertexAttribPointerType.Float, false, 1, 0);
-			GL.EnableVertexAttribArray(0);
-
+			GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, sizeof(float), 0);
+			GL.EnableVertexAttribArray(1);
+			GL.VertexAttribDivisor(1, 1);
+			
 			// X pos buffer
 			_vertexPositionYBufferObject = GL.GenBuffer();
 			GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionYBufferObject);
 			GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), system.particles.PositionY, BufferUsageHint.StreamDraw);
-			GL.VertexAttribPointer(1, 1, VertexAttribPointerType.Float, false, 1, 0);
-			GL.EnableVertexAttribArray(1);
+			GL.VertexAttribPointer(2, 1, VertexAttribPointerType.Float, false, sizeof(float), 0);
+			GL.EnableVertexAttribArray(2);
+			GL.VertexAttribDivisor(2, 1);
 		}
 
 
@@ -60,13 +72,10 @@ namespace Core.Particles.Rendering
 			//
 			GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionXBufferObject);
 			GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(float), system.particles.PositionX);
-			GL.VertexAttribDivisor(0, 1);
-
+			
 			//
 			GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionYBufferObject);
 			GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(float), system.particles.PositionY);
-			GL.VertexAttribDivisor(1, 1);
-
 
 			ShaderParticle.Use();
 			/*
@@ -75,7 +84,7 @@ namespace Core.Particles.Rendering
 
 			GL.BindVertexArray(_vertexArrayObject);
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-			GL.DrawArraysInstanced(PrimitiveType.Points, 0, 1, system.Count);
+			GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, system.Count);
 
 		}
 	}
