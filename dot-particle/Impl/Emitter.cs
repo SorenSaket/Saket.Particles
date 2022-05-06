@@ -18,7 +18,7 @@ namespace Core.Particles
 		/// <summary> </summary>
 		public EmitterSettings settings;
 
-		public ParticleSystem system;
+		public SimulatorCPU system;
 		
 		/// <summary> </summary>
 		private float duration;
@@ -32,7 +32,7 @@ namespace Core.Particles
 		/// <summary> Spawn particles over distance </summary>
 		private Vector2 lastPosition;
 
-		public Emitter(EmitterSettings settings, ParticleSystem system)
+		public Emitter(EmitterSettings settings, SimulatorCPU system)
 		{
 			this.settings = settings;
 			this.system = system;

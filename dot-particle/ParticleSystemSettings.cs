@@ -7,20 +7,11 @@ using System.Threading.Tasks;
 
 namespace Core.Particles
 {
-
+	/// <summary>
+	/// 
+	/// </summary>
 	public class ParticleSystemSettings
 	{
-		// System Settings
-		public int MaxParticles { get; set; } = 64;
-
-		// Particle Settings
-		public LookUpCurve<float> StartLifetime { get; set; } = 1f;
-		public LookUpCurve<float> StartSpeed { get; set; } = 1f;
-		public LookUpCurve<float> StartRotationalSpeed { get; set; } = 0;
-		public LookUpCurve<float> StartSize { get; set; } = 1f;
-		public LookUpCurve<float> StartRotation { get; set; } = 0f;
-		public LookUpCurve<Color> StartColor { get; set; } = Color.White;
-
 		// Velocity over lifetime
 
 
@@ -28,8 +19,17 @@ namespace Core.Particles
 		public LookUpCurve<float> Drag { get; set; } = 1;
 
 		public LookUpCurve<float> RotationalDrag { get; set; } = 1;
+
+		public bool MultiplyBySize { get; set; } = true;
+		public bool MultiplyByVelocity { get; set; } = true;
+
+
+
 		// Size over Lifetime
 		public LookUpCurve<float> SizeOverLifetime { get; set; } = 1;
+
+
+
 		// Size by Speed
 
 		// Rotation over Lifetime

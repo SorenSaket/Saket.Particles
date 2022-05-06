@@ -16,24 +16,22 @@ namespace Core.Particles
 
         private uint scencilIndex = 0;
         private RendererOpenTK renderer;
-        ParticleSystem _particleSystem;
+        SimulatorCPU _particleSystem;
         Emitter emitter;
         public OpenTKGame(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
 		{
             var settings = new ParticleSystemSettings()
             {
-                MaxParticles = 1000,
-                StartSpeed = 0f,
-                StartSize = 64f
+                
             };
 
 
-            _particleSystem = new ParticleSystem(settings);
+            _particleSystem = new SimulatorCPU(64,settings);
 
 
             var emitterSettings = new EmitterSettings()
             {
-                RateOverTime = 100,
+                RateOverTime = 10,
                 Shape = new Shapes.Rectangle() { Size = new System.Numerics.Vector2(2f, 2f) }
             };
             emitter = new Emitter(emitterSettings, _particleSystem);

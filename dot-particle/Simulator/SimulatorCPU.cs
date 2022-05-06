@@ -30,7 +30,7 @@ namespace Core.Particles
 	/// <remarks>
 	/// 
 	/// </remarks>
-	public class ParticleSystem
+	public class SimulatorCPU
 	{
 		public ParticleSystemSettings settings;
 
@@ -38,15 +38,11 @@ namespace Core.Particles
 
 		public int Count => particles.Length;
 
-
-
 		private bool paused;
-
 
 		private int currentCount = 0;
 
 		private int nextParticleIndex = 0;
-
 
 		/// <summary> Barrier used to secure sync across particle system threads</summary>
 		private readonly Barrier barrier;
@@ -57,36 +53,32 @@ namespace Core.Particles
 		/// <summary>   </summary>
 		private readonly System.Random random;
 		
-		
-		
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="maxSize">Recommended sizes of power of 2048.</param>
 		/// <param name="settings"></param>
-		public ParticleSystem(ParticleSystemSettings settings, int seed = 0)
+		public SimulatorCPU(int count, ParticleSystemSettings settings, int seed = 0)
 		{
 			this.settings = settings;
 			//this.threads = settings.MaxParticles / 512;
 
 			// Allocate memory for particles
-			this.particles = new ParticleSOA(settings.MaxParticles);
+			this.particles = new ParticleSOA(count);
 			// Keep threads to a minimum
 			// Calculate number of threads from pagesize, particlecount 
-			this.threads = Environment.ProcessorCount;
+			// Ensure that (particlecount/threads) % 8 == 0
+			this.threads = 1;//Environment.ProcessorCount;
 
 			this.barrier = new Barrier(threads + 1);
 	
-			this.stride = settings.MaxParticles / (threads);
+			this.stride = particles.Length / (threads);
 
 			this.random = new System.Random(seed);
 		}
 
-
-
 		public void Play() { paused = false; StartSimulation(); }
 		public void Pause() => paused = true;
-
 
 
 		protected void StartSimulation()
@@ -101,7 +93,7 @@ namespace Core.Particles
 			// Start up syncronization thread
 			new Thread(
 				() => {
-					while (true)
+					while (!paused)
 					{
 						barrier.SignalAndWait();
 						Thread.Sleep(16);
@@ -117,34 +109,36 @@ namespace Core.Particles
 
 
 		}
+
 		protected void DoUpdateParticle(object data)
 		{
-			while (true)
+			while (!paused)
 			{
 				int thread = (int)data;
+
 				int startIndex = thread * stride;
 
-				int endIndex = (thread + 1) * stride;
+				int endIndex = ((thread + 1) * stride); // exclusive
 
 				int range = endIndex - startIndex;
 
-				//Debug.WriteLine("I :" + thread + " F: " + startIndex + "  T: " + endIndex);
-				/*
-				if (range % 8 != 0)
-					Debug.WriteLine("AAAAAAA");*/
 
 				// Progress lifetime with delta time
-				//AvxSub(particles.CurrentLifetime, 1f/60f, startIndex, endIndex);
+				CPUMath.Add(particles.CurrentLifetime, 1f/60f, startIndex, endIndex);
 
-				// Add velocity to position
-				/*for (int i = startIndex; i < endIndex; i++)
-				{
-					particles.PositionX[i] += particles.VelocityX[i];
-
-				}*/
+				// Calculate lifetime progress
+				CPUMath.DivStore(particles.LifeProgress, particles.CurrentLifetime, particles.Lifetime, startIndex, endIndex);
 
 				// SIMD curve evaluation
 				// SIMD Random Number Generator
+
+				// Limit velocity over lifetime
+				CPUMath.Mult(particles.VelocityX, settings.Drag.Table[0], startIndex, endIndex);
+				CPUMath.Mult(particles.VelocityY, settings.Drag.Table[0], startIndex, endIndex);
+
+
+
+				// -------- Progress State --------
 
 				CPUMath.Add(particles.PositionX, particles.VelocityX, startIndex, endIndex);
 				CPUMath.Add(particles.PositionY, particles.VelocityY, startIndex, endIndex);
@@ -152,9 +146,6 @@ namespace Core.Particles
 				barrier.SignalAndWait();
 			}
 		}
-
-
-
 
 		public virtual void SpawnParticle(float positionX, float positionY, float rotation = 0, float velocityX = 0, float velocityY = 0)
 		{

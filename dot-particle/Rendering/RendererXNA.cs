@@ -13,7 +13,7 @@ namespace Core.Particles
     public class RendererXNA 
     {
         private GraphicsDevice graphicsDevice;
-        private ParticleSystem particleSystem;
+        private SimulatorCPU particleSystem;
 
         private IndexBuffer indexBuffer;
         private VertexBuffer vertexBuffer;
@@ -21,7 +21,7 @@ namespace Core.Particles
         private BasicEffect effect;
         VertexPositionColorTexture[] vertices;
         private RasterizerState rasterizerState;
-        public RendererXNA(GraphicsDevice graphicsDevice, ParticleSystem system)
+        public RendererXNA(GraphicsDevice graphicsDevice, SimulatorCPU system)
         {
             this.graphicsDevice = graphicsDevice;
             this.particleSystem = system;
@@ -87,7 +87,7 @@ namespace Core.Particles
             }
         }
 
-        private void UpdateVertexBuffer(ParticleSystem system)
+        private void UpdateVertexBuffer(SimulatorCPU system)
 		{
             for (int i = 0; i < system.particles.Length; i++)
             {   /*

@@ -8,8 +8,6 @@ namespace Core.Particles
 {
 	public class EmitterSettings
 	{
-
-
 		public float Duration { get; set; } = -1f;
 		
 		public float RateOverTime { get; set; } = 0f;
@@ -18,6 +16,13 @@ namespace Core.Particles
 		/// </summary>
 		public float RateOverDistance { get; set; } = 0;
 
+		// Particle Settings
+		public LookUpCurve<float> StartLifetime { get; set; } = 1f;
+		public LookUpCurve<float> StartSpeed { get; set; } = 1f;
+		public LookUpCurve<float> StartRotationalSpeed { get; set; } = 0;
+		public LookUpCurve<float> StartSize { get; set; } = 1f;
+		public LookUpCurve<float> StartRotation { get; set; } = 0f;
+		public LookUpCurve<Color> StartColor { get; set; } = Color.White;
 
 		public Burst[] Brusts { get; set; }
 
@@ -50,6 +55,5 @@ namespace Core.Particles
 		/// <summary> Likelyhood of the burst spawning  </summary>
 		public float Probability { get; set; } = 1;
 	}
-
 
 }

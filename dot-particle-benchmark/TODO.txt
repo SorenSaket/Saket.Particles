@@ -1,0 +1,4 @@
+﻿Support for Advanced features
+	Scale
+	Rotation
+	Change over lifetime

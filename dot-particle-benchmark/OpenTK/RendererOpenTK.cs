@@ -18,7 +18,7 @@ namespace Core.Particles.Rendering
 		private static Shader ShaderParticle;
 
 
-		private ParticleSystem system;
+		private SimulatorCPU system;
 
 
 		const float size = 0.01f;
@@ -33,7 +33,7 @@ namespace Core.Particles.Rendering
 			 size,  size,
 		};
 
-		public RendererOpenTK(ParticleSystem system)
+		public RendererOpenTK(SimulatorCPU system)
 		{
 			this.system = system;
 			if (ShaderParticle == null)

@@ -9,9 +9,9 @@ namespace Core.Particles.Rendering
     public abstract class Renderer
     {
 
-        private ParticleSystem system;
+        private SimulatorCPU system;
 
-		protected Renderer(ParticleSystem system)
+		protected Renderer(SimulatorCPU system)
 		{
 			this.system = system;
 		}

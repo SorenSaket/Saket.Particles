@@ -13,7 +13,7 @@ namespace Core.Particles
 		private GraphicsDeviceManager _graphics;
 		private SpriteBatch _spriteBatch;
 
-		private ParticleSystem _particleSystem;
+		private SimulatorCPU _particleSystem;
 		private RendererXNA renderer;
 		private Emitter emitter;
 		public XNAGame()
@@ -45,7 +45,7 @@ namespace Core.Particles
 				RenderSettings = new SheetRenderSettings(new Texture2D(GraphicsDevice,64,64))};
 
 
-			_particleSystem = new ParticleSystem(settings);
+			_particleSystem = new SimulatorCPU(settings);
 
 			var emitterSettings = new EmitterSettings()
 			{
