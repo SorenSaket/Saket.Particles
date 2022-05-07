@@ -1,39 +1,51 @@
-﻿using OpenTK.Mathematics;
-using OpenTK.Windowing.Desktop;
-using System;
-using System.Diagnostics;
-using System.Runtime.Intrinsics.X86;
+﻿using System;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Running;
 
 namespace Core.Particles
 {
+    [SimpleJob(RunStrategy.Monitoring, targetCount: 1)]
+    public class ParticleBenchmark
+    {
+		SimulatorCPU simulatorCPU;
+        Emitter emitter;
+        public ParticleBenchmark()
+        {
+            var settings = new ParticleSystemSettings()
+            {
+                Drag = 1f,
+            };
+
+            this.simulatorCPU = new SimulatorCPU(800000, settings);
+            
+            var emitterSettings = new EmitterSettings()
+            {
+                RateOverTime = 800000,
+                Shape = new Shapes.Rectangle() { Size = new System.Numerics.Vector2(2f, 2f) }
+            };
+            emitter = new Emitter(emitterSettings, simulatorCPU);
+
+        }
+
+        [Benchmark]
+        public void test()
+        {
+            this.simulatorCPU.Play();
+            while (simulatorCPU.Tick < 1000)
+            {
+
+            }
+        }
+    }
+
+
 	public static class Program
 	{
 		[STAThread]
 		static void Main()
 		{
-			Debug.WriteLine("Processor count: " + Environment.ProcessorCount);
-			Debug.WriteLine("AVX: " + Avx2.IsSupported);
-			Debug.WriteLine("float count simd " + System.Numerics.Vector<float>.Count);
-
-
-
-			var nativeWindowSettings = new NativeWindowSettings()
-			{
-				Size = new Vector2i(1920, 1080),
-				Title = "Particle System"
-			};
-
-			var gameWindowSettings = GameWindowSettings.Default;
-			
-			using (var window = new OpenTKGame(gameWindowSettings, nativeWindowSettings))
-			{
-				window.Run();
-			}
-
-			//using (var game = new XNAGame())
-			//	game.Run();
+            BenchmarkRunner.Run<ParticleBenchmark>();
 		}
-
-		
 	}
 }

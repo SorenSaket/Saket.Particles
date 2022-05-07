@@ -37,7 +37,7 @@ namespace Core.Particles
 
 			// TODO: Add your initialization logic here
 
-
+			/*
 			var settings = new ParticleSystemSettings() {
 				MaxParticles = 1000000,
 				StartSpeed = 0f,
@@ -45,7 +45,7 @@ namespace Core.Particles
 				RenderSettings = new SheetRenderSettings(new Texture2D(GraphicsDevice,64,64))};
 
 
-			_particleSystem = new SimulatorCPU(settings);
+			_particleSystem = new SimulatorCPU(settings);*/
 
 			var emitterSettings = new EmitterSettings()
 			{

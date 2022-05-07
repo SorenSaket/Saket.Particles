@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace Core.Particles
 {
 	/// <summary>
+	/// The lookup curves are deltas (derivative) between samples and not the real value
 	/// 
 	/// </summary>
 	public class ParticleSystemSettings
@@ -16,17 +17,16 @@ namespace Core.Particles
 
 
 		// Limit velocity over lifetime
-		public LookUpCurve<float> Drag { get; set; } = 1;
+		public LookUpCurve<float> Drag { get; set; } = 0.9f;
 
-		public LookUpCurve<float> RotationalDrag { get; set; } = 1;
+		public LookUpCurve<float> RotationalDrag { get; set; } = 1f;
 
 		public bool MultiplyBySize { get; set; } = true;
 		public bool MultiplyByVelocity { get; set; } = true;
 
 
-
 		// Size over Lifetime
-		public LookUpCurve<float> SizeOverLifetime { get; set; } = 1;
+		public LookUpCurve<float> SizeOverLifetime { get; set; } = 1f;
 
 
 

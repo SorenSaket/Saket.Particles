@@ -16,11 +16,6 @@ namespace Core.Particles
 			return Table[(int)(t * Table.Length)];
 		}
 
-		public T SampleUnsafe(float t)
-		{
-			ref T tableRef = ref MemoryMarshal.GetArrayDataReference(Table);
-			return Unsafe.Add(ref tableRef, (nint)(t));
-		}
 
 		public static implicit operator LookUpCurve<T>(T T) => new LookUpCurve<T>() { Table = new T[] {T}};
 

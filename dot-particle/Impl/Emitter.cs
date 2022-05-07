@@ -41,7 +41,6 @@ namespace Core.Particles
 		public void Start()
 		{
 			Paused = false;
-			
 		}
 
 		public void Restart()
@@ -92,8 +91,6 @@ namespace Core.Particles
 
 			SpawnParticlesOverTime(delta);
 			SpawnParticlesOverDistance();
-
-
 		}
 		
 		
@@ -144,15 +141,21 @@ namespace Core.Particles
 			
 			float rot = (MathF.Atan2(Position.Y-localPos.Y, Position.X - localPos.X)* settings.SpherizeDirection) + 
 						(Randoms.Rotation() * settings.RandomizeRotation);
+			rot = Randoms.Rotation();
+			RandomDynamicColor c = Gradient.Rainbow;
 
+			Particle particle = new Particle()
+			{
+				PositionX = pos.X,
+				PositionY = pos.Y,
+				Rotation = rot,
+				RotationalVelocity = 0.0004f,
+				Color =int.MaxValue, //c.GetRandomValue.PackedValue,
+				VelocityX = 0.005f,
+				VelocityY = 0.001f
+            };
 
-			system.SpawnParticle(
-				pos.X,
-				pos.Y,
-				rot,
-				MathF.Cos(rot) * 0.01f,
-				MathF.Sin(rot) * 0.01f
-				);
+			system.SpawnParticle(particle);
 		}
 	}
 }

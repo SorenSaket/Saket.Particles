@@ -17,12 +17,12 @@ namespace Core.Particles
 		public float RateOverDistance { get; set; } = 0;
 
 		// Particle Settings
-		public LookUpCurve<float> StartLifetime { get; set; } = 1f;
-		public LookUpCurve<float> StartSpeed { get; set; } = 1f;
-		public LookUpCurve<float> StartRotationalSpeed { get; set; } = 0;
-		public LookUpCurve<float> StartSize { get; set; } = 1f;
-		public LookUpCurve<float> StartRotation { get; set; } = 0f;
-		public LookUpCurve<Color> StartColor { get; set; } = Color.White;
+		public RandomDynamicFloat StartLifetime { get; set; } = 1f;
+		public RandomDynamicFloat StartSpeed { get; set; } = 1f;
+		public RandomDynamicFloat StartRotationalSpeed { get; set; } = 0;
+		public RandomDynamicFloat StartSize { get; set; } = 1f;
+		public RandomDynamicFloat StartRotation { get; set; } = 0f;
+		public uint StartColor { get; set; } = uint.MaxValue;
 
 		public Burst[] Brusts { get; set; }
 

@@ -12,7 +12,6 @@ namespace Core
 	public class SheetRenderSettings
 	{
 		/// <summary> The texture of the particle </summary>
-		public Texture2D Texture => texture;
 		public SheetAnimationType AnimationType => animType;
 		public Rectangle[] Frames => frames;
 		public Vector2 Origin => origin;
@@ -20,14 +19,12 @@ namespace Core
 		public int Width { get; private set; }
 		public int Height { get; private set; }
 
-		private readonly Texture2D texture;
 		private readonly SheetAnimationType animType;
 		private readonly Rectangle[] frames;
 		private readonly Vector2 origin;
 
-		public SheetRenderSettings(Texture2D texture, SheetAnimationType animType = SheetAnimationType.None, int columns = 1, int rows = 1, int startElement = 0, int elements = -1)
+		public SheetRenderSettings(int width, int height, SheetAnimationType animType = SheetAnimationType.None, int columns = 1, int rows = 1, int startElement = 0, int elements = -1)
 		{
-			this.texture = texture;
 			this.animType = animType;
 
 			// If no element count is already specified uses the whole texture
@@ -41,8 +38,8 @@ namespace Core
 				frameCount = elements - startElement;
 
 			// The size of a single frame
-			Width = texture.Width / columns;
-			Height = texture.Height / rows;
+			Width = width / columns;
+			Height = height / rows;
 
 			this.frames = new Rectangle[frameCount]; // initialize the frames with the computed framecount
 

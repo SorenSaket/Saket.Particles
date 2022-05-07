@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
-
 using System.Diagnostics;
 
 
@@ -32,31 +31,36 @@ namespace Core.Particles
 	/// </remarks>
 	public class SimulatorCPU
 	{
+		public long Tick => barrier.CurrentPhaseNumber;
 		public ParticleSystemSettings settings;
 
-		public ParticleSOA particles;
+		public ParticlePublic Particles => particles;
+		protected ParticlePublic particles;
 
 		public int Count => particles.Length;
 
-		private bool paused;
+		protected bool paused;
 
-		private int currentCount = 0;
+		protected int currentCount = 0;
 
-		private int nextParticleIndex = 0;
+		protected int nextParticleIndex = 0;
 
 		/// <summary> Barrier used to secure sync across particle system threads</summary>
-		private readonly Barrier barrier;
+		protected readonly Barrier barrier;
 		/// <summary> Barrier used to secure sync across particle system threads</summary>
-		private readonly int threads;
+		protected readonly int threads;
 		/// <summary>count/threads</summary>
-		private readonly int stride;
+		protected readonly int stride;
 		/// <summary>   </summary>
-		private readonly System.Random random;
+		protected readonly System.Random random;
 		
+		protected readonly object spawnlock;
+
+
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="maxSize">Recommended sizes of power of 2048.</param>
+		/// <param name="maxSize">Recommended sizes of power of 2048</param>
 		/// <param name="settings"></param>
 		public SimulatorCPU(int count, ParticleSystemSettings settings, int seed = 0)
 		{
@@ -64,17 +68,22 @@ namespace Core.Particles
 			//this.threads = settings.MaxParticles / 512;
 
 			// Allocate memory for particles
-			this.particles = new ParticleSOA(count);
+			//count = (int)Math.Ceiling((count / Environment.ProcessorCount) / 8f) * 8;
+			//Debug.WriteLine(count);
+
+			this.particles = new ParticlePublic(count);
 			// Keep threads to a minimum
 			// Calculate number of threads from pagesize, particlecount 
-			// Ensure that (particlecount/threads) % 8 == 0
-			this.threads = 1;//Environment.ProcessorCount;
+			// Ensure that (particlecount/threads) % 8 == 0 to
+			this.threads = Environment.ProcessorCount;
 
 			this.barrier = new Barrier(threads + 1);
-	
+		
 			this.stride = particles.Length / (threads);
 
 			this.random = new System.Random(seed);
+
+			spawnlock = new object();
 		}
 
 		public void Play() { paused = false; StartSimulation(); }
@@ -106,27 +115,25 @@ namespace Core.Particles
 			{
 				new Thread(new ParameterizedThreadStart(DoUpdateParticle)) { IsBackground = true }.Start(i);
 			}
-
-
 		}
 
 		protected void DoUpdateParticle(object data)
 		{
+			int thread = (int)data;
+
+			int startIndex = thread * stride;
+
+			int endIndex = ((thread + 1) * stride); // exclusive
+
+			int range = endIndex - startIndex;
+
 			while (!paused)
 			{
-				int thread = (int)data;
-
-				int startIndex = thread * stride;
-
-				int endIndex = ((thread + 1) * stride); // exclusive
-
-				int range = endIndex - startIndex;
-
-
 				// Progress lifetime with delta time
 				CPUMath.Add(particles.CurrentLifetime, 1f/60f, startIndex, endIndex);
 
 				// Calculate lifetime progress
+				// Divide currentlifetime with lifetime and store in lifeprogress. 
 				CPUMath.DivStore(particles.LifeProgress, particles.CurrentLifetime, particles.Lifetime, startIndex, endIndex);
 
 				// SIMD curve evaluation
@@ -137,52 +144,42 @@ namespace Core.Particles
 				CPUMath.Mult(particles.VelocityY, settings.Drag.Table[0], startIndex, endIndex);
 
 
-
 				// -------- Progress State --------
-
 				CPUMath.Add(particles.PositionX, particles.VelocityX, startIndex, endIndex);
 				CPUMath.Add(particles.PositionY, particles.VelocityY, startIndex, endIndex);
+
+				CPUMath.Add(particles.Rotation, particles.RotationalVelocity, startIndex, endIndex);
+
 
 				barrier.SignalAndWait();
 			}
 		}
 
-		public virtual void SpawnParticle(float positionX, float positionY, float rotation = 0, float velocityX = 0, float velocityY = 0)
+		public virtual void SpawnParticle(Particle particle)
 		{
-			// ---- Externally set values ---- 
+			lock (spawnlock)
+			{
+				particles.PositionX[nextParticleIndex] = particle.PositionX;
+				particles.PositionY[nextParticleIndex] = particle.PositionY;
+				particles.Rotation[nextParticleIndex] = particle.Rotation;
+				particles.RotationalVelocity[nextParticleIndex] = particle.RotationalVelocity;
+				particles.VelocityX[nextParticleIndex] = particle.VelocityX;
+				particles.VelocityY[nextParticleIndex] = particle.VelocityY;
+				particles.Lifetime[nextParticleIndex] = particle.Lifetime;
+				particles.CurrentLifetime[nextParticleIndex] = particles.LifeProgress[nextParticleIndex] = 0;
+				particles.ScaleX[nextParticleIndex] = particle.ScaleX;
+				particles.ScaleY[nextParticleIndex] = particle.ScaleY;
+				particles.Color[nextParticleIndex] = particle.Color;
 
-			// Set position
-			particles.PositionX[nextParticleIndex] = positionX;
-			particles.PositionY[nextParticleIndex] = positionY;
 
-			// Set Rotation
-			particles.Rotation[nextParticleIndex] = rotation;
-
-			// Set Velocity
-			particles.VelocityX[nextParticleIndex] = velocityX;
-			particles.VelocityY[nextParticleIndex] = velocityY;
-
-
-			// ---- Randomly Sampled Values ----
-
-			// Set lifetime
-			particles.Lifetime[nextParticleIndex] = particles.CurrentLifetime[nextParticleIndex] = settings.StartLifetime.Sample(random.NextDouble());
-
-			// Set Scale
-			particles.ScaleX[nextParticleIndex] = settings.StartSize.Sample(random.NextDouble());
-			particles.ScaleY[nextParticleIndex] = settings.StartSize.Sample(random.NextDouble());
-
-			// Set color
-			particles.Color[nextParticleIndex] = settings.StartColor.Sample(random.NextDouble());
-
-			//particles[nextParticleIndex].RotationalVelocity = settings.StartRotationalSpeed;
-
-			// ---- Advance Counters ----
-			nextParticleIndex++;
-			if (currentCount < particles.Length)
-				currentCount++;
-			if (nextParticleIndex >= particles.Length)
-				nextParticleIndex = 0;
+				// ---- Advance Counters ----
+				nextParticleIndex++;
+				if (currentCount < particles.Length)
+					currentCount++;
+				if (nextParticleIndex >= particles.Length)
+					nextParticleIndex = 0;
+			}
+			
 		}
 	}
 }
