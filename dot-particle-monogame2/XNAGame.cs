@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using System.Diagnostics;
 using System.Runtime.Intrinsics.X86;
+using System;
 
 namespace Core.Particles
 {
@@ -14,50 +15,55 @@ namespace Core.Particles
 		private SpriteBatch _spriteBatch;
 
 		private SimulatorCPU _particleSystem;
-		private RendererXNA renderer;
-		private Emitter emitter;
+		private RendererXNA2D renderer;
+		private Emitter2D emitter;
+
+		private Matrix view;
+		private Matrix projection;
+
 		public XNAGame()
 		{
 			_graphics = new GraphicsDeviceManager(this);
-	
+			_graphics.GraphicsProfile = GraphicsProfile.HiDef;
+			_graphics.ApplyChanges();
+
 			Content.RootDirectory = "Content";
 			IsMouseVisible = true;
 
-			
 			
 		}
 
 		protected override void Initialize()
 		{
+			projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, -1); 
+
+
 			_graphics.PreferredBackBufferWidth = 1920;
 			_graphics.PreferredBackBufferHeight = 1080;
 			_graphics.ApplyChanges();
+			// Disable v sync for testing 
 			_graphics.SynchronizeWithVerticalRetrace = false;
-			
-
-			// TODO: Add your initialization logic here
-
-			/*
-			var settings = new ParticleSystemSettings() {
-				MaxParticles = 1000000,
-				StartSpeed = 0f,
-				StartSize = 64f,
-				RenderSettings = new SheetRenderSettings(new Texture2D(GraphicsDevice,64,64))};
 
 
-			_particleSystem = new SimulatorCPU(settings);*/
+			// Create Particle System
+			_particleSystem = new SimulatorCPU(8000, new IModuleSimulator[]
+			{
+				new ModuleLifetime(),
+				new ModulePosition(),
+			});
 
 			var emitterSettings = new EmitterSettings()
 			{
-				RateOverTime = 10000,
-				Shape = new Shapes.Rectangle(){ Size= new System.Numerics.Vector2( 1920, 1080) }
+				RateOverTime = 1000,
 			};
-			emitter = new Emitter(emitterSettings, _particleSystem);
-			emitter.Position = new System.Numerics.Vector2(-1920 / 2, -1080/2);
 
-			renderer = new RendererXNA(GraphicsDevice, _particleSystem);
+			emitter = new Emitter2D(emitterSettings, _particleSystem);
+			emitter.Position = new System.Numerics.Vector3(0.5f, 0.5f, 0f);
+
+			renderer = new RendererXNA2D(GraphicsDevice, Content.Load<Effect>("shader_particle"), _particleSystem);
 
 			base.Initialize();
+
 		}
 
 		protected override void LoadContent()
@@ -73,14 +79,17 @@ namespace Core.Particles
 				Exit();
 
 			emitter.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
-
-			base.Update(gameTime);
+			renderer.Update();
 		}
 
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.CornflowerBlue);
-			renderer.Render();
+			GraphicsDevice.Clear(Color.CadetBlue);
+
+			renderer.Draw(ref view, ref projection);
+
+
+
 			base.Draw(gameTime);
 		}
 	}

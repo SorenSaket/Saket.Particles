@@ -30,8 +30,6 @@ namespace Core.Particles
 				window.Run();
 			}
 
-			//using (var game = new XNAGame())
-			//	game.Run();
 		}
 
 

@@ -1,13 +1,13 @@
 ﻿using System;
 
-namespace dot_particle_monogame2
+namespace Core.Particles
 {
     public static class Program
     {
         [STAThread]
         static void Main()
         {
-            using (var game = new Game1())
+            using (var game = new XNAGame())
                 game.Run();
         }
     }

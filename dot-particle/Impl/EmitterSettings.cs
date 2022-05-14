@@ -16,19 +16,7 @@ namespace Core.Particles
 		/// </summary>
 		public float RateOverDistance { get; set; } = 0;
 
-		// Particle Settings
-		public RandomDynamicFloat StartLifetime { get; set; } = 1f;
-		public RandomDynamicFloat StartSpeed { get; set; } = 1f;
-		public RandomDynamicFloat StartRotationalSpeed { get; set; } = 0;
-		public RandomDynamicFloat StartSize { get; set; } = 1f;
-		public RandomDynamicFloat StartRotation { get; set; } = 0f;
-		public uint StartColor { get; set; } = uint.MaxValue;
-
 		public Burst[] Brusts { get; set; }
-
-		// Shape
-		public IShape Shape { get; set; }
-
 		public float RandomizeRotation { get; set; } = 0;
 		public float SpherizeDirection { get; set; } = 0;
 	}

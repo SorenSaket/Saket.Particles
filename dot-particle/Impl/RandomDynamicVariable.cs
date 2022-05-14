@@ -3,7 +3,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// Random Dynamic is rust some random keywords
+// Random Dynamic is just some random keywords
 
 namespace Core.Particles
 {

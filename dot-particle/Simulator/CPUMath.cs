@@ -2,7 +2,7 @@
 
 namespace Core.Particles
 {
-	internal static class CPUMath
+	public static class CPUMath
 	{
 		public static void Mult(float[] a, float b, int start, int end)
 		{

@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Core.Particles
 {
-    public class Emitter
+    public abstract class Emitter
 	{   
 		/// <summary> </summary>
-		public Vector2 Position { get; set; }
+		public Vector3 Position { get; set; }
 
 		/// <summary> </summary>
 		public bool Paused { get; set; } = true;
@@ -30,30 +30,14 @@ namespace Core.Particles
 		private float distanceTraveled;
 
 		/// <summary> Spawn particles over distance </summary>
-		private Vector2 lastPosition;
+		private Vector3 lastPosition;
 
+		// -------- Lifetime --------
 		public Emitter(EmitterSettings settings, SimulatorCPU system)
 		{
 			this.settings = settings;
 			this.system = system;
 		}
-
-		public void Start()
-		{
-			Paused = false;
-		}
-
-		public void Restart()
-		{
-			duration = 0;
-			spawnTimer = 0;
-		}
-
-		public void Stop()
-		{
-
-		}
-		
 		public void Update(float delta)
 		{
 			if (Paused)
@@ -92,8 +76,23 @@ namespace Core.Particles
 			SpawnParticlesOverTime(delta);
 			SpawnParticlesOverDistance();
 		}
-		
-		
+
+		// -------- Public --------
+		public void Start()
+		{
+			Paused = false;
+		}
+		public void Restart()
+		{
+			duration = 0;
+			spawnTimer = 0;
+		}
+		public void Stop()
+		{
+
+		}
+
+		// -------- Private --------
 		private void SpawnParticlesOverTime(float delta)
 		{
 			if (settings.RateOverTime <= 0)
@@ -119,13 +118,12 @@ namespace Core.Particles
 				spawnTimer = timeBetweenSpawns;
 			}
 		}
-
 		private void SpawnParticlesOverDistance()
 		{
 			if (settings.RateOverDistance <= 0)
 				return;
 
-			distanceTraveled += Vector2.Distance(Position, lastPosition);
+			distanceTraveled += Vector3.Distance(Position, lastPosition);
 			lastPosition = Position;
 			if (distanceTraveled >= settings.RateOverDistance)
 			{
@@ -133,29 +131,6 @@ namespace Core.Particles
 				distanceTraveled = 0;
 			}
 		}
-
-		private void SpawnParticle()
-		{
-			Vector2 localPos = settings.Shape.RandomPointWithin();
-			Vector2 pos = Position + localPos;
-			
-			float rot = (MathF.Atan2(Position.Y-localPos.Y, Position.X - localPos.X)* settings.SpherizeDirection) + 
-						(Randoms.Rotation() * settings.RandomizeRotation);
-			rot = Randoms.Rotation();
-			RandomDynamicColor c = Gradient.Rainbow;
-
-			Particle particle = new Particle()
-			{
-				PositionX = pos.X,
-				PositionY = pos.Y,
-				Rotation = rot,
-				RotationalVelocity = 0.0004f,
-				Color =int.MaxValue, //c.GetRandomValue.PackedValue,
-				VelocityX = 0.005f,
-				VelocityY = 0.001f
-            };
-
-			system.SpawnParticle(particle);
-		}
+		protected abstract void SpawnParticle();
 	}
 }

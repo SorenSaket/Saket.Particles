@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-
+// https://stackoverflow.com/questions/9929103/need-help-using-instancing-in-xna-4-0
 namespace HardwareInstancing
 {
     public class Instancing
@@ -150,7 +150,7 @@ namespace HardwareInstancing
 
             #endregion
 
-            indexBuffer = new IndexBuffer(device, typeof(int), 36, BufferUsage.WriteOnly);
+            indexBuffer = new IndexBuffer(device, IndexElementSize.SixteenBits, 36, BufferUsage.WriteOnly);
             indexBuffer.SetData(indices);
         }
 
@@ -188,7 +188,7 @@ namespace HardwareInstancing
             effect.CurrentTechnique.Passes[0].Apply();
 
             device.SetVertexBuffers(bindings);
-            device.DrawInstancedPrimitives(PrimitiveType.TriangleList, 0, 0, 24, 0, 12, instanceCount);
+            device.DrawInstancedPrimitives(PrimitiveType.TriangleList, 24, 0, 12, instanceCount);
         }
     }
 }

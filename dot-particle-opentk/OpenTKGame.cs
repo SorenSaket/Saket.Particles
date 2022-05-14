@@ -18,33 +18,34 @@ namespace Core.Particles
     {
 
         private uint scencilIndex = 0;
-        private RendererOpenTK renderer;
+        private RendererOpenTK2D renderer;
         SimulatorCPU _particleSystem;
         Emitter emitter;
         public OpenTKGame(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
 		{
-            Image<Rgba32> image = Image.Load<Rgba32>("./Assets/Texture/Smoke");
+           //Image<Rgba32> image = Image.Load<Rgba32>("./Assets/Texture/Smoke");
 
-            var settings = new ParticleSystemSettings()
+
+
+            _particleSystem = new SimulatorCPU(256, new IModule[]
             {
-                Drag = 1f,
-                RenderSettings = new SheetRenderSettings(image.Width, image.Height, SheetAnimationType.Anim, 6, 6)
-            };
-
-
-            _particleSystem = new SimulatorCPU(800,settings);
-
+                new ModuleLifetime(),
+                new ModulePosition(),
+                new ModuleRotation(),
+                new ModuleVelocity(),
+                new ModuleColor()
+            });
 
             var emitterSettings = new EmitterSettings()
             {
-                
-                RateOverTime = 8,
-                Shape = new Shapes.Rectangle() { Size = new System.Numerics.Vector2(2f, 2f) }
+                RateOverTime = 16,
             };
-            emitter = new Emitter(emitterSettings, _particleSystem);
-            emitter.Position = new System.Numerics.Vector2(-1f, -1f);
 
-            renderer = new RendererOpenTK(_particleSystem, image);
+            emitter = new MyCustomEmitter(emitterSettings, _particleSystem);
+            emitter.Position = new System.Numerics.Vector3(0.0f, 0.0f, 0f);
+
+
+            renderer = new RendererOpenTK2D(_particleSystem);
         }
 
         protected override void OnLoad()

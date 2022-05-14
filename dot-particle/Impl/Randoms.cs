@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Core.Particles
 {
-	internal class Randoms
+	public class Randoms
 	{
 		private static System.Random rnd = new System.Random();
 

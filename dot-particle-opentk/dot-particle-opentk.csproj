@@ -10,16 +10,12 @@
 
   <ItemGroup>
     <None Remove="Assets\Shaders\Particle\fragment.glsl" />
-    <None Remove="Assets\Shaders\Particle\geometry.glsl" />
     <None Remove="Assets\Shaders\Particle\vertex.glsl" />
     <None Remove="Assets\Textures\Smoke.tif" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\Shaders\Particle\fragment.glsl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Shaders\Particle\geometry.glsl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Shaders\Particle\vertex.glsl">

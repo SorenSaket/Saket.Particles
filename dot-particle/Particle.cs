@@ -31,10 +31,11 @@ namespace Core.Particles
 		public readonly int Length { get; }
 		public ParticlePublic(int size)
 		{
-			Length = size;
-			Lifetime = new float[size];
-			CurrentLifetime = new float[size];
-			LifeProgress = new float[size];
+			Length				= size;
+
+			Lifetime			= new float[size];
+			CurrentLifetime		= new float[size];
+			LifeProgress		= new float[size];
 
 			PositionX			= new float[size];
 			VelocityX			= new float[size];
