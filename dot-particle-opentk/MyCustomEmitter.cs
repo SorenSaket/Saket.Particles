@@ -12,13 +12,17 @@ namespace Core.Particles
 		private ModuleColor simulatorModuleColor;
 		private ModuleVelocity simulatorVelocity;
 
-
+		private ModuleScale simulatorScale;
+		private ModuleRotation simulatorRotation;
 		public MyCustomEmitter(EmitterSettings settings, SimulatorCPU system) : base(settings, system)
         {
 			simulatorModuleLifetime = system.GetModule<ModuleLifetime>();
 			simulatorModule2D = system.GetModule<ModulePosition>();
 			simulatorModuleColor = system.GetModule<ModuleColor>();
 			simulatorVelocity = system.GetModule<ModuleVelocity>();
+
+			simulatorRotation = system.GetModule<ModuleRotation>();
+			simulatorScale = system.GetModule<ModuleScale>();
 		}
 
         // Particle Settings
@@ -41,11 +45,17 @@ namespace Core.Particles
 
 			simulatorModule2D.PositionX[particle] = Position.X;
 			simulatorModule2D.PositionY[particle] = Position.Y;
-			simulatorVelocity.VelocityX[particle] = MathF.Cos(rot)*0.006f;
+			simulatorModule2D.PositionZ[particle] = Position.Z;
+
+			simulatorVelocity.VelocityX[particle] = MathF.Sin(rot)*0.006f;
 			simulatorVelocity.VelocityY[particle] = 0.006f;
-			simulatorVelocity.VelocityZ[particle] = MathF.Sin(rot) * 0.006f;
-			//simulatorVelocity.Rotation[particle] = Randoms.Rotation();
-			//simulatorVelocity.RotationalVelocity[particle] = 0.0004f;
+			simulatorVelocity.VelocityZ[particle] = MathF.Cos(rot) * 0.006f;
+
+			simulatorScale.ScaleX[particle] = 0.4f;
+			simulatorScale.ScaleY[particle] = 6f;
+
+			simulatorRotation.Rotation[particle] = rot;
+			//simulatorRotation.RotationalVelocity[particle] = 0.1f;
 
 
 

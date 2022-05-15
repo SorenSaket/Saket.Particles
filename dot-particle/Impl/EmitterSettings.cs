@@ -16,7 +16,7 @@ namespace Core.Particles
 		/// </summary>
 		public float RateOverDistance { get; set; } = 0;
 
-		public Burst[] Brusts { get; set; }
+		public Burst[] Brusts { get; set; } = null;
 		public float RandomizeRotation { get; set; } = 0;
 		public float SpherizeDirection { get; set; } = 0;
 	}

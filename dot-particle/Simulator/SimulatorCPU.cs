@@ -20,6 +20,9 @@ namespace Core.Particles
 	/// </summary>
 	public class SimulatorCPU
 	{
+		private const int largestStride = 8;
+		private const int particlesPerThreadMin = 2048;
+
 		private const float delta = 1f/60f;
 		public readonly int Count;
 
@@ -61,18 +64,14 @@ namespace Core.Particles
 		/// <param name="modules"></param>
 		public SimulatorCPU(int count, IModule[] modules, int seed = 0)
 		{
-			this.Count = count;
+			this.threads = Math.Min(count / particlesPerThreadMin, Environment.ProcessorCount);
+			this.Count = (int)(Math.Ceiling((count / this.threads) / 8f) * 8 * this.threads);
+			Debug.WriteLine("Starting particle system with " + this.Count + " particles, across " + this.threads + " threads.");
+
 			this.modules = modules;
 			this.simulatorModules = modules.OfType<IModuleSimulator>().ToArray();
-			//this.threads = settings.MaxParticles / 512;
 
-			// Allocate memory for particles
-			//count = (int)Math.Ceiling((count / Environment.ProcessorCount) / 8f) * 8;
-			//Debug.WriteLine(count);
 
-			// Keep threads to a minimum
-			// Calculate number of threads from pagesize, particlecount 
-			// Ensure that (particlecount/threads) % 8 == 0 to
 
 
 
@@ -128,20 +127,22 @@ namespace Core.Particles
 		/// </summary>
 		public virtual int GetNextParticle()
 		{
-			int r = 0;
+		
 			// lock is nessesary to avoid race condition from multiple threads trying to spawn.
 			lock (spawnlock)
 			{
+				int r = 0;
+				r = nextParticleIndex;
 				// ---- Advance Counters ----
 				nextParticleIndex++;
-				if (currentCount < Count)
-					currentCount++;
 				if (nextParticleIndex >= Count)
+                {
 					nextParticleIndex = 0;
-				r = nextParticleIndex;
+				}
+				//
+				return r;
 			}
-			//
-			return r;
+			
 		}
 		
 		/// <summary> 

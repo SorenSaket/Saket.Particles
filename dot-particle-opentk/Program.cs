@@ -20,7 +20,7 @@ namespace Core.Particles
 			var nativeWindowSettings = new NativeWindowSettings()
 			{
 				Size = new Vector2i(1920, 1080),
-				Title = "Particle System"
+				Title = "Particle System",
 			};
 			
 			var gameWindowSettings = GameWindowSettings.Default;

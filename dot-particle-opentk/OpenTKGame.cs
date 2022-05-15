@@ -66,8 +66,11 @@ namespace Core.Particles
                 new ModuleLifetime(),
                 new ModulePosition(),
                 new ModuleRotation(),
+                new ModuleScale(),
                 new ModuleVelocity(),
                 new ModuleColor(),
+                new ModuleScaleOverLifetime(new float[]{1f, 1.00001f}),
+
             });
 
             var emitterSettings = new EmitterSettings()
@@ -118,7 +121,7 @@ namespace Core.Particles
 
             totalTime += (float)e.Time;
 
-            view = Matrix4.LookAt(new Vector3(MathF.Sin(totalTime) * 3, 3, MathF.Cos(totalTime) * 3), Vector3.UnitX, Vector3.UnitY);
+            view = Matrix4.LookAt(new Vector3(MathF.Sin(totalTime/3) * 3, 3, MathF.Cos(totalTime / 3) * 3), new Vector3(0.5f,1,0), Vector3.UnitY);
         }
         
     }
