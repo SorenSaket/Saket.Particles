@@ -35,21 +35,24 @@ namespace Core.Particles
 
 		protected override void Initialize()
 		{
-			projection = Matrix.CreateOrthographicOffCenter(0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0, 0, -1); 
-
+			
 
 			_graphics.PreferredBackBufferWidth = 1920;
 			_graphics.PreferredBackBufferHeight = 1080;
 			_graphics.ApplyChanges();
 			// Disable v sync for testing 
 			_graphics.SynchronizeWithVerticalRetrace = false;
-
+			projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45.0f), GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height, 0.1f, 100f);
+			view = Matrix.CreateLookAt(new Vector3(0, 1, -3), Vector3.Zero, Vector3.UnitY);
 
 			// Create Particle System
-			_particleSystem = new SimulatorCPU(8000, new IModuleSimulator[]
+			_particleSystem = new SimulatorCPU(8000, new IModule[]
 			{
 				new ModuleLifetime(),
 				new ModulePosition(),
+				new ModuleRotation(),
+				new ModuleVelocity(),
+				new ModuleColor(),
 			});
 
 			var emitterSettings = new EmitterSettings()
@@ -58,7 +61,7 @@ namespace Core.Particles
 			};
 
 			emitter = new Emitter2D(emitterSettings, _particleSystem);
-			emitter.Position = new System.Numerics.Vector3(0.5f, 0.5f, 0f);
+			emitter.Position = new System.Numerics.Vector3(0f, 0f, 0f);
 
 			renderer = new RendererXNA2D(GraphicsDevice, Content.Load<Effect>("shader_particle"), _particleSystem);
 

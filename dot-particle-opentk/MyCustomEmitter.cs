@@ -10,6 +10,7 @@ namespace Core.Particles
 		private ModuleLifetime simulatorModuleLifetime;
 		private ModulePosition simulatorModule2D;
 		private ModuleColor simulatorModuleColor;
+		private ModuleVelocity simulatorVelocity;
 
 
 		public MyCustomEmitter(EmitterSettings settings, SimulatorCPU system) : base(settings, system)
@@ -17,6 +18,7 @@ namespace Core.Particles
 			simulatorModuleLifetime = system.GetModule<ModuleLifetime>();
 			simulatorModule2D = system.GetModule<ModulePosition>();
 			simulatorModuleColor = system.GetModule<ModuleColor>();
+			simulatorVelocity = system.GetModule<ModuleVelocity>();
 		}
 
         // Particle Settings
@@ -37,17 +39,17 @@ namespace Core.Particles
 			float rot = Randoms.Rotation();
 
 
-			simulatorModule2D.PositionX[particle] = Position.X ;
+			simulatorModule2D.PositionX[particle] = Position.X;
 			simulatorModule2D.PositionY[particle] = Position.Y;
-			//simulatorModule2D.VelocityX[particle] = MathF.Cos(rot)*0.006f;
-			//simulatorModule2D.VelocityY[particle] = MathF.Sin(rot) * 0.006f;
+			simulatorVelocity.VelocityX[particle] = MathF.Cos(rot)*0.006f;
+			simulatorVelocity.VelocityY[particle] = 0.006f;
+			simulatorVelocity.VelocityZ[particle] = MathF.Sin(rot) * 0.006f;
+			//simulatorVelocity.Rotation[particle] = Randoms.Rotation();
+			//simulatorVelocity.RotationalVelocity[particle] = 0.0004f;
 
-			//simulatorModule2D.Rotation[particle] = Randoms.Rotation();
-			//simulatorModule2D.RotationalVelocity[particle] = 0.0004f;
 
 
-
-			if(simulatorModuleColor != null)
+			if (simulatorModuleColor != null)
             {
 				simulatorModuleColor.Color[particle] = gradient.Evaluate(Randoms.Range01()).PackedValue;
 			}

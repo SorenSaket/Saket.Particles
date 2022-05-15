@@ -11,10 +11,8 @@ float4x4 WVP;
 
 struct VertexShaderInput
 {
-    float3 Position : POSITION0;
+    float4 Position : POSITION0;
     float2 TexCoord : TEXCOORD0;
-    float posX : POSITION1;
-    float posY : POSITION2;
 };
 
 struct VertexShaderOutput
@@ -23,11 +21,11 @@ struct VertexShaderOutput
     float2 TexCoord : TEXCOORD0;
 };
 
-VertexShaderOutput InstancingVS(in VertexShaderInput input)
+VertexShaderOutput InstancingVS(in VertexShaderInput input, float posX : POSITION1, float posY : POSITION2)
 {
     VertexShaderOutput output = (VertexShaderOutput)0;
 
-    float4 pos = float4(input.Position);
+    float4 pos = float4(input.Position) + float4(posX,posY,0,0);
     pos = mul(pos, WVP);
 
     output.Position = pos;

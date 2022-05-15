@@ -29,11 +29,6 @@ namespace Core.Particles
 
 			simulatorModule2D.PositionX[particle] = Position.X;
 			simulatorModule2D.PositionY[particle] = Position.Y;
-			simulatorModule2D.VelocityX[particle] = 0.001f;
-			simulatorModule2D.VelocityY[particle] = -0.001f;
-
-			simulatorModule2D.Rotation[particle] = 0;
-			simulatorModule2D.RotationalVelocity[particle] = 0.0004f;
 		}
 	}
 }

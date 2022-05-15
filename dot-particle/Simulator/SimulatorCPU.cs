@@ -36,7 +36,7 @@ namespace Core.Particles
 		private IModuleSimulator[] simulatorModules;
 
 
-		protected bool stopped;
+		protected bool stopped = true;
 
 		protected int currentCount = 0;
 
@@ -132,13 +132,13 @@ namespace Core.Particles
 			// lock is nessesary to avoid race condition from multiple threads trying to spawn.
 			lock (spawnlock)
 			{
-				r = nextParticleIndex;
 				// ---- Advance Counters ----
 				nextParticleIndex++;
 				if (currentCount < Count)
 					currentCount++;
 				if (nextParticleIndex >= Count)
 					nextParticleIndex = 0;
+				r = nextParticleIndex;
 			}
 			//
 			return r;

@@ -5,16 +5,19 @@ using System.Text;
 
 namespace Core.Particles
 {
-    public class ModuleSheet : IModuleSimulator
+    public class ModuleSheet : IModule, IModuleSimulator
     {
         /// <summary> Color </summary>
         public byte[] Count { get; set; }
 
+
+
         private SimulatorCPU simulator;
         private ModuleLifetime lifetime;
 
-        public ModuleSheet(int maxCount)
+        public ModuleSheet(int texture2DArray)
         {
+
         }
 
         public void Initialize(SimulatorCPU sim)

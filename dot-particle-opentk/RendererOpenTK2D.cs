@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
@@ -15,7 +16,7 @@ namespace Core.Particles.Rendering
 		private int _quadBufferObject;
 		private int _vertexPositionXBufferObject;
 		private int _vertexPositionYBufferObject;
-
+		private int _vertexPositionZBufferObject;
 		private int colorBufferObject;
 
 		private int rotationBufferObject;
@@ -37,7 +38,7 @@ namespace Core.Particles.Rendering
 		const float size = 0.01f;
 		float[] quadVertices = new float[]{
 			// positions
-			-size,  size,
+			-size,  size, 
 			 size, -size,
 			-size, -size,
 
@@ -59,36 +60,7 @@ namespace Core.Particles.Rendering
 			_vertexArrayObject = GL.GenVertexArray();
 			GL.BindVertexArray(_vertexArrayObject);
 
-			/*
-			int width = system.settings.RenderSettings.Width;
-			int height = system.settings.RenderSettings.Height;
-			int depth = system.settings.RenderSettings.Frames.Length;
-
-			uint[] textures = new uint[width* height * depth];
-			for (int i = 0; i < depth; i++)
-			{
-				//tex.ge(0, system.settings.RenderSettings.Frames[i], textures, width * height * i, width * height);
-			}
-			*/
-			/*
-			texObject = GL.GenTexture();
-			GL.BindTexture(TextureTarget.Texture2DArray, texObject);
-			GL.TexImage3D(
-				TextureTarget.Texture2DArray, 
-				0, 
-				PixelInternalFormat.Rgba8,
-				width, 
-				height, 
-				depth, 
-				0, 
-				PixelFormat.Rgba,
-				PixelType.UnsignedInt8888,
-				textures);
-			GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-			GL.ActiveTexture(TextureUnit.Texture0);
-			*/
 			int layoutLocation = 0;
-
 
 			// QuadVert buffer
 			_quadBufferObject = GL.GenBuffer();
@@ -96,6 +68,8 @@ namespace Core.Particles.Rendering
 			GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * quadVertices.Length, quadVertices, BufferUsageHint.StaticDraw);
 			GL.VertexAttribPointer(layoutLocation, 2, VertexAttribPointerType.Float, false, sizeof(float)*2, 0);
 			GL.EnableVertexAttribArray(layoutLocation);
+
+
 
 			// X pos buffer
 			layoutLocation++;
@@ -115,6 +89,14 @@ namespace Core.Particles.Rendering
 			GL.EnableVertexAttribArray(layoutLocation);
 			GL.VertexAttribDivisor(layoutLocation, 1);
 
+
+			layoutLocation++;
+			_vertexPositionZBufferObject = GL.GenBuffer();
+			GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionZBufferObject);
+			GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), modulePosition.PositionZ, BufferUsageHint.StreamDraw);
+			GL.VertexAttribPointer(layoutLocation, 1, VertexAttribPointerType.Float, false, sizeof(float), 0);
+			GL.EnableVertexAttribArray(layoutLocation);
+			GL.VertexAttribDivisor(layoutLocation, 1);
 
 			// Rotation Buffer
 			layoutLocation++;
@@ -153,11 +135,14 @@ namespace Core.Particles.Rendering
 				GL.VertexAttribDivisor(layoutLocation, 1);
 			}
 
+			// Unbind to avoid leeking state
+			GL.BindVertexArray(0);
 		}
 
 
-		public void Draw()
+		public void Draw(ref Matrix4 view, ref Matrix4 projection)
 		{
+			
 			//
 			GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionXBufferObject);
 			GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(float), modulePosition.PositionX);
@@ -165,7 +150,11 @@ namespace Core.Particles.Rendering
 			//
 			GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionYBufferObject);
 			GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(float), modulePosition.PositionY);
-			
+
+			GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexPositionZBufferObject);
+			GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(float), modulePosition.PositionZ);
+
+
 			if (moduleRotation != null)
 			{
 				GL.BindBuffer(BufferTarget.ArrayBuffer, rotationBufferObject);
@@ -178,18 +167,29 @@ namespace Core.Particles.Rendering
 				GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(uint), simulatorModuleColor.Color);
 			}
 
-			if(simulatorModuleLifetime != null)
+			if (simulatorModuleLifetime != null)
             {
 				GL.BindBuffer(BufferTarget.ArrayBuffer, lifetimeBufferObject);
 				GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(float), simulatorModuleLifetime.LifeProgress);
 			}
-			
+
+
 			
 			ShaderParticle.Use();
+
+			ShaderParticle.SetMatrix4("view", view);
+			ShaderParticle.SetMatrix4("projection", projection);
+
+			GL.DepthMask(true);
+			GL.Enable(EnableCap.DepthTest);
+			GL.Enable(EnableCap.Blend);
 
 			GL.BindVertexArray(_vertexArrayObject);
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 			GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, system.Count);
+
+			// Unbind to avoid leeking state
+			GL.BindVertexArray(0);
 		}
 	}
 }

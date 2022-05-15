@@ -13,7 +13,6 @@ namespace Core.Particles
 
         public void Initialize(SimulatorCPU sim)
         {
-           
             Rotation = new float[sim.Count];
             RotationalVelocity = new float[sim.Count];
         }
