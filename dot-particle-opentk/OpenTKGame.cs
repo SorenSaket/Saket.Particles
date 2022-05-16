@@ -69,8 +69,8 @@ namespace Core.Particles
                 new ModuleScale(),
                 new ModuleVelocity(),
                 new ModuleColor(),
-                new ModuleScaleOverLifetime(new float[]{1f, 1.00001f}),
-
+                new ModuleVelocityOverLifetime(new DeltaTable(new float[]{0,0.01f,0.1f})),
+                new ModuleScaleOverLifetime(new DeltaTable(new float[]{0.01f,0,-0.1f})),
             });
 
             var emitterSettings = new EmitterSettings()

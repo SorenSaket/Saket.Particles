@@ -47,7 +47,7 @@ namespace Core.Particles
 			simulatorModule2D.PositionY[particle] = Position.Y;
 			simulatorModule2D.PositionZ[particle] = Position.Z;
 
-			simulatorVelocity.VelocityX[particle] = MathF.Sin(rot)*0.006f;
+			simulatorVelocity.VelocityX[particle] = MathF.Sin(rot) * 0.006f;
 			simulatorVelocity.VelocityY[particle] = 0.006f;
 			simulatorVelocity.VelocityZ[particle] = MathF.Cos(rot) * 0.006f;
 
@@ -55,7 +55,7 @@ namespace Core.Particles
 			simulatorScale.ScaleY[particle] = 6f;
 
 			simulatorRotation.Rotation[particle] = rot;
-			//simulatorRotation.RotationalVelocity[particle] = 0.1f;
+			simulatorRotation.RotationalVelocity[particle] = 0f;
 
 
 
@@ -66,7 +66,7 @@ namespace Core.Particles
 
 			if(simulatorModuleLifetime != null)
             {
-				simulatorModuleLifetime.Lifetime[particle] = 1f;
+				simulatorModuleLifetime.Lifetime[particle] = 3f;
 				simulatorModuleLifetime.CurrentLifetime[particle] = 0f;
 				simulatorModuleLifetime.LifeProgress[particle] = 0f;
 			}

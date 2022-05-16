@@ -7,11 +7,11 @@ namespace Core.Particles
 {
     public class ModuleScaleOverLifetime : IModule, IModuleSimulator
     {
-        public float[] deltaCurve;
+        public DeltaTable deltaCurve;
         ModuleScale scale;
         ModuleLifetime lifetime;
 
-        public ModuleScaleOverLifetime(float[] deltaCurve)
+        public ModuleScaleOverLifetime(DeltaTable deltaCurve)
         {
             this.deltaCurve = deltaCurve;
         }
@@ -29,20 +29,17 @@ namespace Core.Particles
         {
             if (Avx2.IsSupported)
             {
-                float len = deltaCurve.Length;
-                fixed (float* ptr = deltaCurve, ptrLifetime = lifetime.LifeProgress, ptrScaleX = scale.ScaleX, ptrScaleY = scale.ScaleY)
-                {
-                    // Broadcast the length of the deltacurve
-                    var vec_len = Avx2.BroadcastScalarToVector256(&len);
 
+                fixed (float* ptrLifetime = lifetime.LifeProgress, ptrScaleX = scale.ScaleX, ptrScaleY = scale.ScaleY)
+                {
                     for (int i = startIndex; i < endIndex; i+=8)
                     {
                         // Get lifeprogress
                         var vec_lifetime = Avx2.LoadVector256(&ptrLifetime[i]);
-                        // Multiply Lifeprogress with Length and convert to index (int32)
-                        var vec_index = Avx2.ConvertToVector256Int32(Avx2.Multiply(vec_len, vec_lifetime));
-                        // Evaluate curve with index
-                        var vec_m = Avx2.GatherVector256(ptr, vec_index, 1);
+
+                        // Sample Curve
+                        var vec_m = deltaCurve.Sample(vec_lifetime);
+
                         // Multiply Curve with scale X
                         var vec_sx = Avx2.LoadVector256(&ptrScaleX[i]);
                         Avx2.Store(&ptrScaleX[i], Avx2.Multiply(vec_sx, vec_m));

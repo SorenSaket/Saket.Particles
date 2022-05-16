@@ -7,11 +7,11 @@ namespace Core.Particles
 {
     public class ModuleVelocityOverLifetime : IModule, IModuleSimulator
     {
-        public float[] deltaCurve;
+        public DeltaTable deltaCurve;
         ModuleVelocity velocity;
         ModuleLifetime lifetime;
 
-        public ModuleVelocityOverLifetime(float[] deltaCurve)
+        public ModuleVelocityOverLifetime(DeltaTable deltaCurve)
         {
             this.deltaCurve = deltaCurve;
         }
@@ -29,21 +29,16 @@ namespace Core.Particles
         {
             if (Avx2.IsSupported)
             {
-                float len = deltaCurve.Length;
-                fixed (float* ptr = deltaCurve, ptrLifetime = lifetime.LifeProgress, 
+                fixed (float*  ptrLifetime = lifetime.LifeProgress, 
                     ptrVelocityX = velocity.VelocityX, ptrVelocityY = velocity.VelocityY,ptrVelocityZ = velocity.VelocityZ)
                 {
-                    // Broadcast the length of the deltacurve
-                    var vec_len = Avx2.BroadcastScalarToVector256(&len);
-
                     for (int i = startIndex; i < endIndex; i += 8)
                     {
                         // Get lifeprogress
                         var vec_lifetime = Avx2.LoadVector256(&ptrLifetime[i]);
-                        // Multiply Lifeprogress with Length and convert to index (int32)
-                        var vec_index = Avx2.ConvertToVector256Int32(Avx2.Multiply(vec_len, vec_lifetime));
-                        // Evaluate curve with index
-                        var vec_m = Avx2.GatherVector256(ptr, vec_index, 1);
+                        
+                        // Sample Curve
+                        var vec_m = deltaCurve.Sample(vec_lifetime);
 
                         // Multiply Curve with  X
                         var vec_sx = Avx2.LoadVector256(&ptrVelocityX[i]);
