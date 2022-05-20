@@ -1,23 +1,28 @@
 ﻿#version 330 core
 
 layout(location = 0) in vec2 quad;
-layout(location = 1) in float posX;
-layout(location = 2) in float posY;
-layout(location = 3) in float posZ;
+layout(location = 1) in vec2 uv;
 
-layout(location = 4) in float rotation;
+layout(location = 2) in float posX;
+layout(location = 3) in float posY;
+layout(location = 4) in float posZ;
 
-layout(location = 5) in float scaleX;
-layout(location = 6) in float scaleY;
+layout(location = 5) in float rotation;
 
-layout(location = 7) in vec4 color;
-layout(location = 8) in float lifetime;
+layout(location = 6) in float scaleX;
+layout(location = 7) in float scaleY;
+
+layout(location = 8) in vec4 color;
+layout(location = 9) in float lifetime;
+layout(location = 10) in uint texIndex;
 
 
 uniform mat4 view;
 uniform mat4 projection;
 
 out vec4 vertexColor;
+out vec2 vertexUV;
+flat out uint vertexTexIndex;
 
 void main()
 {
@@ -45,8 +50,11 @@ void main()
     1.0) * view * projection;*/
     
     // todo remove if statement by multipling with alpha
-    if(lifetime < 0.999)
+    if(lifetime < 0.99)
         vertexColor = color;
     else
         vertexColor = vec4(0,0,0,0);
+    
+    vertexTexIndex = texIndex;
+    vertexUV = uv;
 }

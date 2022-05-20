@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Core.Particles
 {
-    public abstract class Emitter
+    public class Emitter
 	{   
 		/// <summary> </summary>
 		public Vector3 Position { get; set; }
@@ -18,8 +18,6 @@ namespace Core.Particles
 		/// <summary> </summary>
 		public EmitterSettings settings;
 
-		public SimulatorCPU system;
-		
 		/// <summary> </summary>
 		private float duration;
 
@@ -32,11 +30,12 @@ namespace Core.Particles
 		/// <summary> Spawn particles over distance </summary>
 		private Vector3 lastPosition;
 
+		protected Action emitterAction;
 		// -------- Lifetime --------
-		public Emitter(EmitterSettings settings, SimulatorCPU system)
+		public Emitter(EmitterSettings settings, Action emitterAction)
 		{
 			this.settings = settings;
-			this.system = system;
+			this.emitterAction = emitterAction;
 		}
 		public void Update(float delta)
 		{
@@ -131,6 +130,9 @@ namespace Core.Particles
 				distanceTraveled = 0;
 			}
 		}
-		protected abstract void SpawnParticle();
+		protected virtual void SpawnParticle()
+        {
+			emitterAction.Invoke();
+        }
 	}
 }

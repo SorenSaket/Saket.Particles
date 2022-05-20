@@ -55,7 +55,7 @@ namespace Core.Particles
 		protected readonly System.Random random;
 		/// <summary> Lock used for spawning </summary>
 		protected readonly object spawnlock;
-
+		
 
 		/// <summary>
 		/// 
@@ -64,15 +64,12 @@ namespace Core.Particles
 		/// <param name="modules"></param>
 		public SimulatorCPU(int count, IModule[] modules, int seed = 0)
 		{
-			this.threads = Math.Min(count / particlesPerThreadMin, Environment.ProcessorCount);
+			this.threads = Math.Clamp(count / particlesPerThreadMin,1, Environment.ProcessorCount);
 			this.Count = (int)(Math.Ceiling((count / this.threads) / 8f) * 8 * this.threads);
 			Debug.WriteLine("Starting particle system with " + this.Count + " particles, across " + this.threads + " threads.");
 
 			this.modules = modules;
 			this.simulatorModules = modules.OfType<IModuleSimulator>().ToArray();
-
-
-
 
 
 			this.threads = Environment.ProcessorCount;
@@ -127,14 +124,15 @@ namespace Core.Particles
 		/// </summary>
 		public virtual int GetNextParticle()
 		{
-		
 			// lock is nessesary to avoid race condition from multiple threads trying to spawn.
 			lock (spawnlock)
 			{
-				int r = 0;
-				r = nextParticleIndex;
+				int r = nextParticleIndex;
 				// ---- Advance Counters ----
 				nextParticleIndex++;
+				if (currentCount < Count)
+					currentCount++;
+
 				if (nextParticleIndex >= Count)
                 {
 					nextParticleIndex = 0;
@@ -181,7 +179,7 @@ namespace Core.Particles
 			int startIndex = thread * stride;
 			// Last index is exclusive
 			int endIndex = ((thread + 1) * stride); 
-
+			
 			while (!stopped)
 			{
                 for (int i = 0; i < simulatorModules.Length; i++)

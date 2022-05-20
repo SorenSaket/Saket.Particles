@@ -63,12 +63,14 @@ namespace Core.Particles
                 GL.AttachShader(Handle, geometryShader.Value);
             }
 
-            
+        
+
             LinkProgram(Handle);
 
-            ErrorCode error = GL.GetError();
-            if (error != ErrorCode.NoError)
-                Debug.WriteLine("ERROR");
+       
+            var info = GL.GetProgramInfoLog(Handle);
+            Debug.WriteLine(info);
+
 
             // When the shader program is linked, it no longer needs the individual shaders attached to it; the compiled code is copied into the shader program.
             // Detach them, and then delete them.

@@ -29,7 +29,6 @@ namespace Core.Particles
         {
             if (Avx2.IsSupported)
             {
-
                 fixed (float* ptrLifetime = lifetime.LifeProgress, ptrScaleX = scale.ScaleX, ptrScaleY = scale.ScaleY)
                 {
                     for (int i = startIndex; i < endIndex; i+=8)

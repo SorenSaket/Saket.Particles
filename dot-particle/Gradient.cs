@@ -5,20 +5,35 @@ using System.Linq;
 
 namespace Core
 {
-	public class Gradient : IEquatable<Gradient>
+	public static class EvalUtils
+    {
+		public static T[] Quantize<T>(this IEvaluable<T> evaluable, int samples)
+        {
+			var result = new T[samples];
+
+            for (int i = 0; i < result.Length; i++)
+            {
+				result[i] = evaluable.Evaluate(((float)i)/ ((float)samples));
+			}
+
+			return result;
+        }
+
+	}
+
+	public interface IEvaluable<T>
+    {
+		public T Evaluate(float t);
+    }
+
+
+	public class Gradient : IEquatable<Gradient>, IEvaluable<Color>
 	{
 		public GradientPoint[] Points => colors;
 
 		GradientPoint[] colors;
 
 
-		public Gradient()
-		{
-			colors = new GradientPoint[] {
-					new GradientPoint(Color.White, 0),
-					new GradientPoint(Color.White, 1),
-				};
-		}
 		public Gradient(GradientPoint[] colors)
 		{
 			this.colors = colors.OrderBy((x)=>x.pos).ToArray();
@@ -28,7 +43,7 @@ namespace Core
 			this.colors = new GradientPoint[_colors.Length];
 			for (int i = 0; i < _colors.Length; i++)
 			{
-				this.colors[i] = new GradientPoint(_colors[i], (1f / (_colors.Length-1f)) * (i));
+				this.colors[i] = new GradientPoint((1f / (_colors.Length - 1f)) * (i), _colors[i]);
 			}
 		}
 
@@ -74,50 +89,20 @@ namespace Core
 			return other == this;
 		}
 
-		static Gradient()
-		{
-			White = new Gradient(new GradientPoint[] {
-					new GradientPoint(Color.White, 0),
-					new GradientPoint(Color.White, 1),
-				});
-			Rainbow = new Gradient(new GradientPoint[] {
-				new GradientPoint(Color.Red, 0),
-				new GradientPoint(Color.Yellow, (1f/5f)*1f),
-				new GradientPoint(Color.Green,(1f/5f)*2f),
-				new GradientPoint(Color.Cyan, (1f/5f)*3f),
-				new GradientPoint(Color.Blue, (1f/5f)*4f),
-				new GradientPoint(Color.Magenta, (1f/5f)*5f),
-			});
-			BlackToWhite = new Gradient(new GradientPoint[] {
-				new GradientPoint(Color.Black, 0),
-				new GradientPoint(Color.White, 1),
-			});
-			Fire = new Gradient(new GradientPoint[] {
-				new GradientPoint(Color.White, 0),
-				new GradientPoint(Color.Yellow, 0.1f),
-				new GradientPoint(Color.Red,0.5f),
-				new GradientPoint(Color.Black,1f) });
-		}
-
-		public static Gradient White { get; private set; }
-
-		public static Gradient Rainbow { get; private set; }
-
-		public static Gradient BlackToWhite { get; private set; }
-
-		public static Gradient Fire { get; private set; }
 
 	}
 
 	public struct GradientPoint
 	{
-		public Color color;
 		public float pos;
+		public Color color;
+		
 
-		public GradientPoint(Color color, float pos)
+		public GradientPoint(float pos, Color color)
 		{
-			this.color = color;
 			this.pos = pos;
+			this.color = color;
+			
 		}
 	}
 

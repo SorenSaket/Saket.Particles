@@ -13,6 +13,11 @@ namespace Core.Particles
         {
             ScaleX = new float[sim.Count];
             ScaleY = new float[sim.Count];
+
+            for (int i = 0; i < sim.Count; i++)
+            {
+                ScaleX[i] = ScaleY[i] = 10f;
+            }
         }
     }
 }

@@ -15,7 +15,6 @@ namespace Core.Particles
         /// <summary> Y World Space coordinates </summary>
         public float[] PositionZ { get; set; }
 
-
         public void Initialize(SimulatorCPU sim)
         {
             PositionX = new float[sim.Count];

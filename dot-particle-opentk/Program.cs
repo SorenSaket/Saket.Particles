@@ -21,10 +21,11 @@ namespace Core.Particles
 			{
 				Size = new Vector2i(1920, 1080),
 				Title = "Particle System",
+				
 			};
 			
 			var gameWindowSettings = GameWindowSettings.Default;
-
+			
 			using (var window = new OpenTKGame(gameWindowSettings, nativeWindowSettings))
 			{
 				window.Run();

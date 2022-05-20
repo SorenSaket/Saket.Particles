@@ -31,15 +31,18 @@ namespace Core.Particles
             for (int i = 0; i < sim.Count; i++)
             {
                 Lifetime[i] = 1f;
+                CurrentLifetime[i] = 1f;
+                LifeProgress[i] = 1f;
             }
         }
 
         public unsafe void Update(float delta, int startIndex, int endIndex)
         {
+            // Why?
             delta = Math.Clamp(delta, 0f, 1f);
             if (Avx.IsSupported)
             {
-                // Load Constant
+                // Load delta
                 var vectorDelta = Avx.BroadcastScalarToVector256(&delta);
 
                 fixed (float* aPtr = Lifetime, bPtr = CurrentLifetime, cPtr = LifeProgress)
@@ -48,9 +51,13 @@ namespace Core.Particles
                     {
                         // Load Current life
                         var currentLifetime = Avx.LoadVector256(&bPtr[i]);
+                        // Advance lifetime by delta
                         currentLifetime = Avx.Add(currentLifetime, vectorDelta);
-
+                        // store current lifetime
                         Avx.Store(&bPtr[i], currentLifetime);
+
+                        // divide currentlife by lifetime to get lifetimeprogress 0..inf (techinically no limit)
+                        // Consider limiting lifetime
                         Avx.Store(&cPtr[i], Avx.Divide(currentLifetime, Avx.LoadVector256(&aPtr[i])));
                     }
                 }
