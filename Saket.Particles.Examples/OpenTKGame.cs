@@ -123,7 +123,7 @@ namespace Saket.Particles
                 letter_lifetime.Lifetime[particle] = 3f;
                 letter_lifetime.LifeProgress[particle] = 0f;
 
-            }, 0.1f);
+            }, 0.2f);
 
             // Spawner System
             var system_spawner = new SimulatorCPU(500, new IModule[]
@@ -143,7 +143,7 @@ namespace Saket.Particles
             {
                 int particle = system_spawner.GetNextParticle();
 
-                float z = Randoms.Range01() * -50f -5;
+                float z = Randoms.Range01() * -100f -5;
 
                 float width = MathF.Tan(MathHelper.DegreesToRadians(60)) * z + 5;
 
@@ -153,7 +153,7 @@ namespace Saket.Particles
                 spawner_position.PositionZ[particle] = z;
 
                 spawner_velocity.VelocityX[particle] = 0;
-                spawner_velocity.VelocityY[particle] = -0.05f;
+                spawner_velocity.VelocityY[particle] = -0.1f;
                 spawner_velocity.VelocityZ[particle] = 0;
 
                 spawner_emitter.Timer[particle] = 0;
@@ -284,6 +284,7 @@ namespace Saket.Particles
         {
             base.OnResize(e);
             GL.Viewport(0, 0, Size.X, Size.Y);
+            camera.AspectRatio = Size.X / Size.Y;
         }
 
         private float totalTime = 0;

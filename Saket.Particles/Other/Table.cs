@@ -1,4 +1,5 @@
-﻿using System.Runtime.Intrinsics;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
 
@@ -38,6 +39,7 @@ namespace Saket.Particles
 
         public abstract Vector256<T> Sample(Vector256<float> vec_floatingIndex);
         public abstract Vector128<T> Sample(Vector128<float> vec_floatingIndex);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Sample(float floatingIndex)
         {
             return values[(int)(floatingIndex * (values.Length - 1))];
