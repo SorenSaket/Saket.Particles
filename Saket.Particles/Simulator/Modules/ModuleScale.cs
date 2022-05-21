@@ -16,7 +16,7 @@ namespace Saket.Particles
 
             for (int i = 0; i < sim.Count; i++)
             {
-                ScaleX[i] = ScaleY[i] = 10f;
+                ScaleX[i] = ScaleY[i] = 1f;
             }
         }
     }

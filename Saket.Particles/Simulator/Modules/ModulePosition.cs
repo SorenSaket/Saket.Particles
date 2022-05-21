@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Saket.Particles
+﻿namespace Saket.Particles
 {
     public class ModulePosition : IModule
     {
-        // --------- Positional State ---------
-
         /// <summary> X World Space coordinates </summary>
         public float[] PositionX { get; set; }
         /// <summary> Y World Space coordinates </summary>

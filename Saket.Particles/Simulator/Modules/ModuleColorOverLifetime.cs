@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Runtime.Intrinsics.X86;
-using System.Text;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Saket.Particles
 {
@@ -27,7 +26,7 @@ namespace Saket.Particles
 
         public unsafe void Update(float delta, int startIndex, int endIndex)
         {
-            if (Avx2.IsSupported)
+            if (Avx.IsSupported)
             {
                 fixed (float* ptrLifetime = lifetime.LifeProgress)
                 {
@@ -36,20 +35,64 @@ namespace Saket.Particles
                         for (int i = startIndex; i < endIndex; i += 8)
                         {
                             // Get lifeprogress
-                            var vec_lifetime = Avx2.LoadVector256(&ptrLifetime[i]);
-                            var vec_color = Avx2.LoadVector256(&ptrColor[i]);
+                            var vec_lifetime = Avx.LoadVector256(&ptrLifetime[i]);
+                            var vec_color = Avx.LoadVector256(&ptrColor[i]);
 
                             // Sample Curve
                             var vec_target = deltaCurve.Sample(vec_lifetime);
 
-                            Avx2.Store(&ptrColor[i], vec_target);
+                            Avx.Store(&ptrColor[i], vec_target);
+                        }
+                    }
+                }
+            }
+            else if (Sse2.IsSupported)
+            {
+                fixed (float* ptrLifetime = lifetime.LifeProgress)
+                {
+                    fixed (uint* ptrColor = color.Color)
+                    {
+                        for (int i = startIndex; i < endIndex; i += 4)
+                        {
+                            // Get lifeprogress
+                            var vec_lifetime = Sse2.LoadVector128(&ptrLifetime[i]);
+                            var vec_color = Sse2.LoadVector128(&ptrColor[i]);
 
+                            // Sample Curve
+                            var vec_target = deltaCurve.Sample(vec_lifetime);
+
+                            Sse2.Store(&ptrColor[i], vec_target);
+                        }
+                    }
+                }
+            }
+            else if (AdvSimd.IsSupported)
+            {
+                fixed (float* ptrLifetime = lifetime.LifeProgress)
+                {
+                    fixed (uint* ptrColor = color.Color)
+                    {
+                        for (int i = startIndex; i < endIndex; i += 4)
+                        {
+                            // Get lifeprogress
+                            var vec_lifetime = AdvSimd.LoadVector128(&ptrLifetime[i]);
+                            var vec_color = AdvSimd.LoadVector128(&ptrColor[i]);
+
+                            // Sample Curve
+                            var vec_target = deltaCurve.Sample(vec_lifetime);
+
+                            AdvSimd.Store(&ptrColor[i], vec_target);
                         }
                     }
                 }
             }
             else
-                throw new System.NotImplementedException();
+            {
+                for (int i = startIndex; i < endIndex; i += 1)
+                {
+                    color.Color[i] = deltaCurve.Sample(lifetime.LifeProgress[i]);
+                }
+            }
         }
     }
 }

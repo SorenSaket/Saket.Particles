@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-namespace Saket.Particles
+﻿namespace Saket.Particles
 {
     public class ModuleColor : IModule
     {
@@ -12,7 +9,6 @@ namespace Saket.Particles
         public void Initialize(SimulatorCPU sim)
         {
             Color = new uint[sim.Count];
-
         }
     }
 }

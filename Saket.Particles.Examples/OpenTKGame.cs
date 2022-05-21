@@ -86,7 +86,7 @@ namespace Saket.Particles
             // Save these for access in spawner
             var letter_lifetime = new ModuleLifetime();
             var letter_position = new ModulePosition();
-            var letter_sheet = new ModuleSheet(0);
+            var letter_sheet = new ModuleSheet();
 
             var gradient = new Gradient<Color>(new GradientPoint<Color>[] {
                 new GradientPoint<Color>(0,     new Color(255,  255,    255,    255)),

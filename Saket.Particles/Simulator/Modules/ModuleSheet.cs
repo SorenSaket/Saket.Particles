@@ -10,11 +10,6 @@ namespace Saket.Particles
         /// <summary> Color </summary>
         public byte[] SpriteIndex { get; set; }
 
-        public ModuleSheet(int texture2DArray)
-        {
-
-        }
-
         public void Initialize(SimulatorCPU sim)
         {
             SpriteIndex = new byte[sim.Count];

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Runtime.Intrinsics.X86;
+using System.Runtime.Intrinsics.Arm;
+
 
 namespace Saket.Particles
 {
@@ -15,13 +15,13 @@ namespace Saket.Particles
         public float[] VelocityZ { get; set; }
 
 
-        private ModulePosition _position;
+        private ModulePosition position;
 
 
         public void Initialize(SimulatorCPU sim)
         {
-            _position = sim.GetModule<ModulePosition>();
-            System.Diagnostics.Debug.Assert(_position != null);
+            position = sim.GetModule<ModulePosition>();
+            System.Diagnostics.Debug.Assert(position != null);
 
             VelocityX = new float[sim.Count];
             VelocityY = new float[sim.Count];
@@ -30,10 +30,9 @@ namespace Saket.Particles
 
         public unsafe void Update(float delta, int startIndex, int endIndex)
         {
-            // Movement
-            CPUMath.Add(_position.PositionX, VelocityX, startIndex, endIndex);
-            CPUMath.Add(_position.PositionY, VelocityY, startIndex, endIndex);
-            CPUMath.Add(_position.PositionZ, VelocityZ, startIndex, endIndex);
+            CPUMath.Add(position.PositionX, VelocityX, startIndex, endIndex);
+            CPUMath.Add(position.PositionY, VelocityY, startIndex, endIndex);
+            CPUMath.Add(position.PositionZ, VelocityZ, startIndex, endIndex);
         }
     }
 }
