@@ -21,7 +21,7 @@ namespace Core.Particles
 
 	public class Burst
 	{
-		public Burst(RandomDynamicInt count, float time = 0, int cycles = 1, float interval = 0, float probability = 1)
+		public Burst(int count, float time = 0, int cycles = 1, float interval = 0, float probability = 1)
 		{
 			Time = time;
 			Count = count;
@@ -33,7 +33,7 @@ namespace Core.Particles
 		/// <summary> The time at which the burst should start </summary>
 		public float Time { get; set; } = 0;
 		/// <summary>The amount of particles to spawn </summary>
-		public RandomDynamicInt Count { get; set; } = new RandomDynamicInt(30, 30, null, null);
+		public int Count { get; set; } = 30;
 		/// <summary> On many times to spawn the burst  </summary>
 		public int Cycles { get; set; } = 1;
 		/// <summary> Time interval between spawns </summary>

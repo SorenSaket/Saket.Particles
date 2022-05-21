@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Particles;
 
 namespace Core.Particles.Rendering
 {
@@ -244,7 +245,7 @@ namespace Core.Particles.Rendering
 		}
 
 
-		public void Draw(ref Matrix4 view, ref Matrix4 projection)
+		public void Draw(Matrix4 view, Matrix4 projection)
 		{
 
 			//

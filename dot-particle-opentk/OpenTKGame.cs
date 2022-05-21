@@ -15,6 +15,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System.Runtime.InteropServices;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Core.Particles
 {
@@ -27,17 +28,18 @@ namespace Core.Particles
 
         private Emitter emitter_spawner;
 
-        Matrix4 view;
-        Matrix4 projection;
-
+        private bool _firstMove = true;
+        private Vector2 _lastPos;
+        private Camera camera;
         public OpenTKGame(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
+            camera = new Camera(new Vector3(0, 0, 5), 60, Size.X / Size.Y);
             // Generate texture
             {
                 //LoadSpriteSheet("./Assets/Textures/matrix.png", 1,8,8);
 
                 //Load the image
-                Image<Rgba32> image = Image.Load<Rgba32>("./Assets/Textures/matrix.png");
+                Image<Rgba32> image = SixLabors.ImageSharp.Image.Load<Rgba32>("./Assets/Textures/matrix.png");
 
 
                 int width = image.Width;
@@ -85,22 +87,23 @@ namespace Core.Particles
             var letter_position = new ModulePosition();
             var letter_sheet = new ModuleSheet(0);
 
-            var gradient = new Gradient(new GradientPoint[] {
-                new GradientPoint(0, new Microsoft.Xna.Framework.Color(1f, 1f, 1f, 1f)),
-                new GradientPoint(0.1f, new Microsoft.Xna.Framework.Color(0f, 1f, 0f, 1f)),
-                new GradientPoint(0.8f, new Microsoft.Xna.Framework.Color(0f, 1f, 0f, 0f)),
-                new GradientPoint(1f, new Microsoft.Xna.Framework.Color(0f, 1f, 0f, 0f))
+            var gradient = new Gradient<Color>(new GradientPoint<Color>[] {
+                new GradientPoint<Color>(0,     new Color(255,  255,    255,    255)),
+                new GradientPoint<Color>(0.1f,  new Color(0,    255,    0,      255)),
+                new GradientPoint<Color>(0.8f,  new Color(0,    255,    0,      255)),
+                new GradientPoint<Color>(1f,    new Color(0,    255,    0,      0))
                 }).Quantize(128).Select(x=>x.PackedValue).ToArray();
 
             // Letter system
-            var system_letter = new SimulatorCPU(100000, new IModule[]
+            var system_letter = new SimulatorCPU(500000, new IModule[]
             {
                 letter_lifetime,
                 letter_position,
                 new ModuleScale(),
                 new ModuleColor(),
+
                 letter_sheet,
-                new ModuleColorOverLifetime(new DeltaTableUint(gradient))
+                new ModuleColorOverLifetime(new TableUint(gradient))
             });
 
 
@@ -119,13 +122,12 @@ namespace Core.Particles
                 letter_sheet.SpriteIndex[particle] = (byte)Randoms.Range(0, 64);
                 // set lifetime
                 letter_lifetime.Lifetime[particle] = 3f;
-                letter_lifetime.CurrentLifetime[particle] = 0f;
                 letter_lifetime.LifeProgress[particle] = 0f;
 
             }, 0.1f);
 
             // Spawner System
-            var system_spawner = new SimulatorCPU(10000, new IModule[]
+            var system_spawner = new SimulatorCPU(5000, new IModule[]
             {
                 spawner_position,
                 spawner_velocity,
@@ -135,7 +137,7 @@ namespace Core.Particles
 
             var emitterSettings = new EmitterSettings()
             {
-                RateOverTime = 1000,
+                RateOverTime = 500,
             };
 
             emitter_spawner = new Emitter(emitterSettings, () =>
@@ -143,12 +145,12 @@ namespace Core.Particles
                 int particle = system_spawner.GetNextParticle();
 
 
-                float z = Randoms.Range01() * -100f;
+                float z = Randoms.Range01() * -100f -5;
 
-                float width = MathF.Tan(MathHelper.DegreesToRadians(60)) * z;
+                float width = MathF.Tan(MathHelper.DegreesToRadians(60)) * z + 5;
 
 
-                spawner_position.PositionX[particle] = Randoms.Range01() * width - width/2f;
+                spawner_position.PositionX[particle] = (Randoms.Range01() * width) - width/2f;
                 spawner_position.PositionY[particle] = Randoms.Range01() - width/2f;
                 spawner_position.PositionZ[particle] = z;
 
@@ -198,7 +200,7 @@ namespace Core.Particles
         // Does not currently work
         // https://gamedev.stackexchange.com/questions/147854/unpacking-sprite-sheet-into-2d-texture-array
         void LoadSpriteSheet(string path, int levels, int columns, int rows)
-        {
+        {/*
             //Load the image
             Image<Rgba32> image = Image.Load<Rgba32>(path);
 
@@ -258,7 +260,7 @@ namespace Core.Particles
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2DArray);
             GL.PixelStore(PixelStoreParameter.UnpackRowLength, 0);
             GL.PixelStore(PixelStoreParameter.UnpackSkipPixels, 0);
-            GL.PixelStore(PixelStoreParameter.UnpackSkipRows, 0);
+            GL.PixelStore(PixelStoreParameter.UnpackSkipRows, 0);*/
         }
 
 
@@ -272,7 +274,7 @@ namespace Core.Particles
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.StencilBufferBit | ClearBufferMask.DepthBufferBit);
 
 
-            renderer.Draw(ref view, ref projection);
+            renderer.Draw(camera.ViewMatrix, camera.ProjectionMatrix);
 
             SwapBuffers();
         }
@@ -280,8 +282,6 @@ namespace Core.Particles
         {
             base.OnResize(e);
             GL.Viewport(0, 0, Size.X, Size.Y);
-
-            projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), e.Width /e.Height , 0.1f, 100.0f);
         }
 
         private float totalTime = 0;
@@ -295,10 +295,68 @@ namespace Core.Particles
 
             float power = 0.5f;
 
-            view = Matrix4.LookAt(
-                new Vector3(MathF.Sin(totalTime)* power - (power/2f), MathF.Cos(totalTime) * power - (power / 2f), 5), 
-                new Vector3(0, 0, 0), 
-                Vector3.UnitY);
+            KeyboardState input = KeyboardState;
+            MouseState mouse = MouseState;
+
+            float cameraSpeed = 10f;
+
+            if (input.IsKeyDown(Keys.LeftShift))
+                cameraSpeed = 50f;
+
+            const float sensitivity = 0.2f;
+
+            if (input.IsKeyDown(Keys.W))
+            {
+                camera.Translate(camera.Front * cameraSpeed * (float)e.Time); // Forward
+            }
+            if (input.IsKeyDown(Keys.S))
+            {
+                camera.Translate(-camera.Front * cameraSpeed * (float)e.Time); // Backwards
+            }
+            if (input.IsKeyDown(Keys.A))
+            {
+                camera.Translate(-camera.Right * cameraSpeed * (float)e.Time); // Left
+            }
+            if (input.IsKeyDown(Keys.D))
+            {
+                camera.Translate(camera.Right * cameraSpeed * (float)e.Time); // Right
+            }
+            if (input.IsKeyDown(Keys.E))
+            {
+                camera.Translate(camera.Up * cameraSpeed * (float)e.Time); // Up
+            }
+            if (input.IsKeyDown(Keys.Q))
+            {
+                camera.Translate(-camera.Up * cameraSpeed * (float)e.Time); // Down
+            }
+
+            if (!mouse.WasButtonDown(MouseButton.Right) && mouse.IsButtonDown(MouseButton.Right))
+                _lastPos = new Vector2(mouse.X, mouse.Y);
+
+            if (mouse.IsButtonDown(MouseButton.Right))
+            {
+                // Calculate the offset of the mouse position
+                var deltaX = mouse.X - _lastPos.X;
+                var deltaY = mouse.Y - _lastPos.Y;
+                _lastPos = new Vector2(mouse.X, mouse.Y);
+
+                // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
+                camera.Yaw += deltaX * sensitivity;
+                camera.Pitch -= deltaY * sensitivity; // Reversed since y-coordinates range from bottom to top
+
+            }
+
+            if (input.IsKeyPressed(Keys.Escape))
+            {
+                if (CursorGrabbed)
+                {
+                    CursorGrabbed = false;
+                    CursorVisible = true;
+                }
+                else
+                    Close();
+            }
+
         }
     }
 }

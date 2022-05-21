@@ -7,11 +7,11 @@ namespace Core.Particles
 {
     public class ModuleColorOverLifetime : IModule, IModuleSimulator
     {
-        public DeltaTableUint deltaCurve;
+        public TableUint deltaCurve;
         ModuleColor color;
         ModuleLifetime lifetime;
 
-        public ModuleColorOverLifetime(DeltaTableUint deltaCurve)
+        public ModuleColorOverLifetime(TableUint deltaCurve)
         {
             this.deltaCurve = deltaCurve;
         }

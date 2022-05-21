@@ -62,7 +62,7 @@ namespace Core.Particles
 					{
 						// TODO probability, cycles & interval
 
-						int count = settings.Brusts[i].Count.GetRandomValue;
+						int count = settings.Brusts[i].Count;
 
 						for (int y = 0; y < count; y++)
 						{

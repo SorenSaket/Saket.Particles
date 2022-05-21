@@ -7,11 +7,11 @@ namespace Core.Particles
 {
     public class ModuleScaleOverLifetime : IModule, IModuleSimulator
     {
-        public DeltaTable deltaCurve;
+        public TableFloat deltaCurve;
         ModuleScale scale;
         ModuleLifetime lifetime;
 
-        public ModuleScaleOverLifetime(DeltaTable deltaCurve)
+        public ModuleScaleOverLifetime(TableFloat deltaCurve)
         {
             this.deltaCurve = deltaCurve;
         }

@@ -1,70 +1,75 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
-using System.Text;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Core.Particles
 {
+    /// <summary>
+    /// Lifetime Module
+    /// </summary>
+    /// <remarks>
+    /// 
+    /// </remarks>
     public class ModuleLifetime : IModule, IModuleSimulator
     {   
-        // --------- Lifetime ---------
-
         /// <summary> The absolute max lifetime in seconds </summary>
         public float[] Lifetime { get; set; }
-        /// <summary> The absolute current lifetime in seconds </summary>
-        public float[] CurrentLifetime { get; set; }
-        /// <summary> Relative 0..1 lifetime progress. Saved to prevent recalculation </summary>
+        /// <summary> Relative 0..1 lifetime progress </summary>
         public float[] LifeProgress { get; set; }
-
-        private SimulatorCPU sim;
 
         public void Initialize(SimulatorCPU sim)
         {
-            this.sim = sim;
             Lifetime        = new float[sim.Count];
-            
-
-            CurrentLifetime = new float[sim.Count];
             LifeProgress    = new float[sim.Count];
 
+            // Kill all particles by default
+            //
             for (int i = 0; i < sim.Count; i++)
             {
                 Lifetime[i] = 1f;
-                CurrentLifetime[i] = 1f;
                 LifeProgress[i] = 1f;
             }
         }
 
         public unsafe void Update(float delta, int startIndex, int endIndex)
         {
-            // Why?
-            delta = Math.Clamp(delta, 0f, 1f);
+            // Clamp the delta
+            //delta = Math.Clamp(delta, 0f, 1f);
+            
             if (Avx.IsSupported)
             {
                 // Load delta
                 var vectorDelta = Avx.BroadcastScalarToVector256(&delta);
 
-                fixed (float* aPtr = Lifetime, bPtr = CurrentLifetime, cPtr = LifeProgress)
+                fixed (float* ptrLifetime = Lifetime, ptrProgress = LifeProgress)
                 {
-                    for (int i = startIndex; i < endIndex; i += 8)
+                    for (int i = startIndex; i < endIndex; i += 8) 
                     {
-                        // Load Current life
-                        var currentLifetime = Avx.LoadVector256(&bPtr[i]);
                         // Advance lifetime by delta
-                        currentLifetime = Avx.Add(currentLifetime, vectorDelta);
-                        // store current lifetime
-                        Avx.Store(&bPtr[i], currentLifetime);
+                        Avx.Store(&ptrProgress[i], Avx.Add(Avx.LoadVector256(&ptrProgress[i]), Avx.Divide(vectorDelta, Avx.LoadVector256(&ptrLifetime[i]))));
+                    }
+                }
+            }
+            if (AdvSimd.Arm64.IsSupported)
+            {
+                var vectorDelta = AdvSimd.DuplicateToVector128(delta);
 
-                        // divide currentlife by lifetime to get lifetimeprogress 0..inf (techinically no limit)
-                        // Consider limiting lifetime
-                        Avx.Store(&cPtr[i], Avx.Divide(currentLifetime, Avx.LoadVector256(&aPtr[i])));
+                fixed (float* ptrLifetime = Lifetime, ptrProgress = LifeProgress)
+                {
+                    for (int i = startIndex; i < endIndex; i += 4)
+                    {
+                        AdvSimd.Store(&ptrProgress[i], AdvSimd.Add(AdvSimd.LoadVector128(&ptrProgress[i]), AdvSimd.Arm64.Divide(vectorDelta, AdvSimd.LoadVector128(&ptrLifetime[i]))));
                     }
                 }
             }
             else
-                throw new System.NotImplementedException();
-            
+            {
+                
+                for (int i = startIndex; i < endIndex; i++)
+                {
+                    LifeProgress[i] += delta / Lifetime[i];
+                }
+            }
         }
     }
 }

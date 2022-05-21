@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
 namespace Core.Particles
 {
     public class ModuleColor : IModule
@@ -14,10 +13,6 @@ namespace Core.Particles
         {
             Color = new uint[sim.Count];
 
-            for (int i = 0; i < Color.Length; i++)
-            {
-                Color[i] = uint.MaxValue;
-            }
         }
     }
 }

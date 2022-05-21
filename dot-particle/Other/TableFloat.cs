@@ -1,35 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.Arm;
 using System.Runtime.Intrinsics.X86;
-using System.Text;
-using System.Runtime.Intrinsics ;
+
 namespace Core.Particles
 {
     // TODO: SSE doesn't have an avx.gather equivalent
     // 
 
-    public unsafe class DeltaTable
+    public abstract class Table<T> where T : unmanaged
     {
-        public readonly float[] values;
-        
-        private Vector256<float> vec256_len;
-        private Vector256<int> vec256_leni;
+        public readonly T[] values;
 
-        private Vector128<float> vec128_len;
-        private Vector128<int> vec128_leni;
+        protected Vector256<float> vec256_len;
+        protected Vector256<int> vec256_leni;
 
-        public DeltaTable(float[] values)
+        protected Vector128<float> vec128_len;
+        protected Vector128<int> vec128_leni;
+
+        public Table(T[] values)
         {
             this.values = values;
-            for (int i = 0; i < values.Length; i++)
-            {
-                values[i] += 1;
-            }
-
 
             int leni = values.Length - 1;
             float lens = values.Length - 1;
-            
+            unsafe
             {
                 if (Avx2.IsSupported)
                 {
@@ -42,10 +36,25 @@ namespace Core.Particles
                     vec128_leni = Sse2.LoadScalarVector128(&leni);
                 }
             }
-          
+
         }
 
-        public unsafe Vector256<float> Sample(Vector256<float> vec_floatingIndex)
+        public abstract Vector256<T> Sample(Vector256<float> vec_floatingIndex);
+        public abstract Vector128<T> Sample(Vector128<float> vec_floatingIndex);
+        public abstract T Sample(float floatingIndex);
+    }
+
+    public class TableFloat : Table<float>
+    {
+        public TableFloat(float[] values) : base(values)
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                values[i] += 1;
+            }
+        }
+
+        public override unsafe Vector256<float> Sample(Vector256<float> vec_floatingIndex)
         {
             if (Avx2.IsSupported)
             {
@@ -60,11 +69,10 @@ namespace Core.Particles
                     // Evaluate curve with index
                     return Avx2.GatherVector256(ptr, vec_index, 4);
                 }
-            }else
-                throw new System.NotImplementedException();
+            }
+            throw new System.NotImplementedException();
         }
-
-        public unsafe Vector128<float> Sample(Vector128<float> vec_floatingIndex)
+        public override unsafe Vector128<float> Sample(Vector128<float> vec_floatingIndex)
         {
             if (Sse41.IsSupported)
             {
@@ -75,46 +83,24 @@ namespace Core.Particles
             throw new System.NotImplementedException();
         }
 
+        public override float Sample(float floatingIndex) 
+        {
+            throw new System.NotImplementedException();
+        }
+
     }
 
-    public unsafe class DeltaTableUint
+    public  class TableUint : Table<uint>
     {
-        public readonly uint[] values;
-
-        private Vector256<float> vec256_len;
-        private Vector256<int> vec256_leni;
-
-        private Vector128<float> vec128_len;
-        private Vector128<int> vec128_leni;
-
-        public DeltaTableUint(uint[] values)
+        public TableUint(uint[] values) : base(values)
         {
-            this.values = values;
             for (int i = 0; i < values.Length; i++)
             {
                 values[i] += 1;
             }
-
-
-            int leni = values.Length - 1;
-            float lens = values.Length - 1;
-
-            {
-                if (Avx2.IsSupported)
-                {
-                    vec256_len = Avx2.BroadcastScalarToVector256(&lens);
-                    vec256_leni = Avx2.BroadcastScalarToVector256(&leni);
-                }
-                else if (Sse2.IsSupported)
-                {
-                    vec128_len = Sse2.LoadScalarVector128(&lens);
-                    vec128_leni = Sse2.LoadScalarVector128(&leni);
-                }
-            }
-
         }
 
-        public unsafe Vector256<uint> Sample(Vector256<float> vec_floatingIndex)
+        public override unsafe Vector256<uint> Sample(Vector256<float> vec_floatingIndex)
         {
             if (Avx2.IsSupported)
             {
@@ -134,7 +120,7 @@ namespace Core.Particles
                 throw new System.NotImplementedException();
         }
 
-        public unsafe Vector128<uint> Sample(Vector128<float> vec_floatingIndex)
+        public override unsafe Vector128<uint> Sample(Vector128<float> vec_floatingIndex)
         {
             if (Sse41.IsSupported)
             {
@@ -144,6 +130,9 @@ namespace Core.Particles
             }
             throw new System.NotImplementedException();
         }
-
+        public override uint Sample(float floatingIndex)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
