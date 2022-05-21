@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net5.0</TargetFramework>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="Assets\Shaders\Particle\fragment.glsl">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\Shaders\Particle\vertex.glsl">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\Textures\matrix.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Saket.Particles.OpenTK\Saket.Particles.OpenTK.csproj" />
+		<ProjectReference Include="..\Saket.Particles\Saket.Particles.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="OpenTK" Version="4.7.2" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
+		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+	</ItemGroup>
+
+
+</Project>
