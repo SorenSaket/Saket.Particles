@@ -32,6 +32,8 @@ namespace Saket.Particles
         private bool _firstMove = true;
         private Vector2 _lastPos;
         private Camera camera;
+        private long previousTick = 0;
+        SimulatorCPU system_letter;
         public OpenTKGame(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             camera = new Camera(new Vector3(0, 0, 5), 60, Size.X / Size.Y);
@@ -96,7 +98,7 @@ namespace Saket.Particles
                 }).Quantize(128).Select(x=>x.PackedValue).ToArray();
 
             // Letter system
-            var system_letter = new SimulatorCPU(100000, new IModule[]
+            system_letter = new SimulatorCPU(100000, new IModule[]
             {
                 letter_lifetime,
                 letter_position,
@@ -126,7 +128,7 @@ namespace Saket.Particles
             }, 0.2f);
 
             // Spawner System
-            var system_spawner = new SimulatorCPU(500, new IModule[]
+            var system_spawner = new SimulatorCPU(2000, new IModule[]
             {
                 spawner_position,
                 spawner_velocity,
@@ -136,14 +138,14 @@ namespace Saket.Particles
 
             var emitterSettings = new EmitterSettings()
             {
-                RateOverTime = 50,
+                RateOverTime = 200,
             };
 
             emitter_spawner = new Emitter(emitterSettings, () =>
             {
                 int particle = system_spawner.GetNextParticle();
 
-                float z = Randoms.Range01() * -100f -5;
+                float z = Randoms.Range01() * -200f -15;
 
                 float width = MathF.Tan(MathHelper.DegreesToRadians(60)) * z + 5;
 
@@ -153,7 +155,7 @@ namespace Saket.Particles
                 spawner_position.PositionZ[particle] = z;
 
                 spawner_velocity.VelocityX[particle] = 0;
-                spawner_velocity.VelocityY[particle] = -0.1f;
+                spawner_velocity.VelocityY[particle] = -0.15f;
                 spawner_velocity.VelocityZ[particle] = 0;
 
                 spawner_emitter.Timer[particle] = 0;
@@ -360,6 +362,11 @@ namespace Saket.Particles
                     Close();
             }
 
+            if(previousTick != system_letter.Tick)
+            {
+                renderer.Update(); 
+                previousTick = system_letter.Tick;
+            }
         }
     }
 }

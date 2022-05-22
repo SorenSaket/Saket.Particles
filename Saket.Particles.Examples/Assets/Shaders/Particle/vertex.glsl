@@ -23,6 +23,8 @@ uniform mat4 projection;
 out vec4 vertexColor;
 out vec2 vertexUV;
 flat out uint vertexTexIndex;
+flat out float vertexLifetime;
+
 
 void main()
 {
@@ -50,11 +52,8 @@ void main()
     1.0) * view * projection;*/
     
     // todo remove if statement by multipling with alpha
-    if(lifetime < 0.99)
-        vertexColor = color;
-    else
-        vertexColor = vec4(0,0,0,0);
-    
+    vertexLifetime = lifetime;
+    vertexColor = color;
     vertexTexIndex = texIndex;
     vertexUV = uv;
 }

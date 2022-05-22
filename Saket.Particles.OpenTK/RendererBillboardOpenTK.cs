@@ -83,7 +83,7 @@ namespace Saket.Particles.OpenTK
 				layoutLocation++;
 				buffer_position_x = GL.GenBuffer();
 				GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_position_x);
-				GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), modulePosition.PositionX, BufferUsageHint.StreamDraw);
+				GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), modulePosition.PositionX, BufferUsageHint.DynamicDraw);
 				GL.VertexAttribPointer(layoutLocation, 1, VertexAttribPointerType.Float, false, sizeof(float), 0);
 				GL.EnableVertexAttribArray(layoutLocation);
 				GL.VertexAttribDivisor(layoutLocation, 1);
@@ -92,7 +92,7 @@ namespace Saket.Particles.OpenTK
 				layoutLocation++;
 				buffer_position_y = GL.GenBuffer();
 				GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_position_y);
-				GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), modulePosition.PositionY, BufferUsageHint.StreamDraw);
+				GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), modulePosition.PositionY, BufferUsageHint.DynamicDraw);
 				GL.VertexAttribPointer(layoutLocation, 1, VertexAttribPointerType.Float, false, sizeof(float), 0);
 				GL.EnableVertexAttribArray(layoutLocation);
 				GL.VertexAttribDivisor(layoutLocation, 1);
@@ -101,7 +101,7 @@ namespace Saket.Particles.OpenTK
 				layoutLocation++;
 				buffer_position_z = GL.GenBuffer();
 				GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_position_z);
-				GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), modulePosition.PositionZ, BufferUsageHint.StreamDraw);
+				GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), modulePosition.PositionZ, BufferUsageHint.DynamicDraw);
 				GL.VertexAttribPointer(layoutLocation, 1, VertexAttribPointerType.Float, false, sizeof(float), 0);
 				GL.EnableVertexAttribArray(layoutLocation);
 				GL.VertexAttribDivisor(layoutLocation, 1);
@@ -115,7 +115,7 @@ namespace Saket.Particles.OpenTK
 				{
 					buffer_rotation = GL.GenBuffer();
 					GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_rotation);
-					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), IntPtr.Zero, BufferUsageHint.StreamDraw);
+					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicDraw);
 					GL.VertexAttribPointer(layoutLocation, 1, VertexAttribPointerType.Float, false, sizeof(float), (IntPtr)0);
 					GL.EnableVertexAttribArray(layoutLocation);
 					GL.VertexAttribDivisor(layoutLocation, 1);
@@ -131,7 +131,7 @@ namespace Saket.Particles.OpenTK
 				{
 					buffer_scale_x = GL.GenBuffer();
 					GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_scale_x);
-					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), IntPtr.Zero, BufferUsageHint.StreamDraw);
+					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicDraw);
 					GL.VertexAttribPointer(layoutLocation, 1, VertexAttribPointerType.Float, false, sizeof(float), (IntPtr)0);
 					GL.EnableVertexAttribArray(layoutLocation);
 					GL.VertexAttribDivisor(layoutLocation, 1);
@@ -142,7 +142,7 @@ namespace Saket.Particles.OpenTK
 				{
 					buffer_scale_y = GL.GenBuffer();
 					GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_scale_y);
-					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), IntPtr.Zero, BufferUsageHint.StreamDraw);
+					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), IntPtr.Zero, BufferUsageHint.DynamicDraw);
 					GL.VertexAttribPointer(layoutLocation, 1, VertexAttribPointerType.Float, false, sizeof(float), (IntPtr)0);
 					GL.EnableVertexAttribArray(layoutLocation);
 					GL.VertexAttribDivisor(layoutLocation, 1);
@@ -157,7 +157,7 @@ namespace Saket.Particles.OpenTK
 				{
 					buffer_color = GL.GenBuffer();
 					GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_color);
-					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(uint), IntPtr.Zero, BufferUsageHint.StreamDraw);
+					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(uint), IntPtr.Zero, BufferUsageHint.DynamicDraw);
 					GL.VertexAttribPointer(layoutLocation, 4, VertexAttribPointerType.UnsignedByte, true, sizeof(uint), (IntPtr)0);
 					GL.EnableVertexAttribArray(layoutLocation);
 					GL.VertexAttribDivisor(layoutLocation, 1);
@@ -172,7 +172,7 @@ namespace Saket.Particles.OpenTK
 				{
 					buffer_lifetime = GL.GenBuffer();
 					GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_lifetime);
-					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), moduleLifetime.LifeProgress, BufferUsageHint.StreamDraw);
+					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(float), moduleLifetime.LifeProgress, BufferUsageHint.DynamicDraw);
 					GL.VertexAttribPointer(layoutLocation, 1, VertexAttribPointerType.Float, false, sizeof(float), (IntPtr)0);
 					GL.EnableVertexAttribArray(layoutLocation);
 					GL.VertexAttribDivisor(layoutLocation, 1);
@@ -188,7 +188,7 @@ namespace Saket.Particles.OpenTK
 				{
 					buffer_sheet = GL.GenBuffer();
 					GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_sheet);
-					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(byte), IntPtr.Zero, BufferUsageHint.StreamDraw);
+					GL.BufferData(BufferTarget.ArrayBuffer, system.Count * sizeof(byte), IntPtr.Zero, BufferUsageHint.DynamicDraw);
 					GL.VertexAttribIPointer(layoutLocation, 1, VertexAttribIntegerType.Byte, sizeof(byte), IntPtr.Zero);
 					GL.EnableVertexAttribArray(layoutLocation);
 					GL.VertexAttribDivisor(layoutLocation, 1);
@@ -225,7 +225,7 @@ namespace Saket.Particles.OpenTK
 			GL.BindVertexArray(0);
 		}
 
-		public virtual void Draw()
+		public virtual void Update()
         {
 			{
 				// X
@@ -252,13 +252,13 @@ namespace Saket.Particles.OpenTK
 			}
 
 			if (moduleLifetime != null)
-            {
+			{
 				GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_lifetime);
 				GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(float), moduleLifetime.LifeProgress);
 			}
 
 			if (moduleScale != null)
-            {
+			{
 				GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_scale_x);
 				GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(float), moduleScale.ScaleX);
 				GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_scale_y);
@@ -266,10 +266,15 @@ namespace Saket.Particles.OpenTK
 			}
 
 			if (moduleSheet != null)
-            {
+			{
 				GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_sheet);
 				GL.BufferSubData(BufferTarget.ArrayBuffer, (IntPtr)0, system.Count * sizeof(byte), moduleSheet.SpriteIndex);
 			}
+		}
+
+		public virtual void Draw()
+        {
+		
 
 
 			GL.DepthMask(true);
@@ -277,10 +282,10 @@ namespace Saket.Particles.OpenTK
 			GL.Enable(EnableCap.DepthTest);
 			
 			//
-			GL.Enable(EnableCap.Blend);
-			GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-			GL.BlendEquation(BlendEquationMode.FuncAdd);
-	
+			//GL.Enable(EnableCap.Blend);
+			//GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+			//GL.BlendEquation(BlendEquationMode.FuncAdd);
+			
 			//
 			GL.PolygonMode(MaterialFace.Front, PolygonMode.Fill);
 			// Enable Backface culling
