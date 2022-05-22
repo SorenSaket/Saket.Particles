@@ -5,23 +5,23 @@ using System.Linq;
 namespace Saket.Particles
 {
 
-	public class Gradient<T> : IEvaluable<T> where T : ILerpable<T>
+	public abstract class Gradient<T> : IEvaluable<T>
 	{
-		public GradientPoint<T>[] Points => colors;
+		public GradientPoint<T>[] Points => values;
 
-		GradientPoint<T>[] colors;
+		GradientPoint<T>[] values;
 
 
-		public Gradient(GradientPoint<T>[] colors)
+		public Gradient(GradientPoint<T>[] values)
 		{
-			this.colors = colors.OrderBy((x)=>x.pos).ToArray();
+			this.values = values.OrderBy((x)=>x.pos).ToArray();
 		}
-		public Gradient(T[] _colors)
+		public Gradient(T[] values)
 		{
-			this.colors = new GradientPoint<T>[_colors.Length];
-			for (int i = 0; i < _colors.Length; i++)
+			this.values = new GradientPoint<T>[values.Length];
+			for (int i = 0; i < values.Length; i++)
 			{
-				this.colors[i] = new GradientPoint<T>((1f / (_colors.Length - 1f)) * (i), _colors[i]);
+				this.values[i] = new GradientPoint<T>((1f / (values.Length - 1f)) * (i), values[i]);
 			}
 		}
 
@@ -30,35 +30,86 @@ namespace Saket.Particles
 			// Clamp t
 			t = MathF.Min(1, MathF.Max(t, 0));
 
-			GradientPoint<T> col1 = colors[FloorIndex(t)];
-			GradientPoint<T> col2 = colors[CeilIndex(t)];
+			GradientPoint<T> col1 = values[FloorIndex(t)];
+			GradientPoint<T> col2 = values[CeilIndex(t)];
 			//(col1.color) is an arbitrary instance of T to acess the non-static Lerp function from Ilerpable
-			return (col1.color).Lerp(col1.color, col2.color, (col1.pos - t) / (col1.pos - col2.pos));
+			return Lerp(col1.color, col2.color, (col1.pos - t) / (col1.pos - col2.pos));
 		}
-		
+		/// <summary>
+		/// Returns index of Value that has the nearest smaller position
+		/// </summary>
+		/// <param name="t"></param>
+		/// <returns></returns>
 		private int FloorIndex(float t)
 		{
-			for (int i = colors.Length-1; i >= 0; i--)
+			for (int i = values.Length-1; i >= 0; i--)
 			{
-				if (colors[i].pos <= t)
+				if (values[i].pos <= t)
 					return i;
 			}
 			return 0;
 		}
+		/// <summary>
+		/// Returns index of Value that has the nearest higher position
+		/// </summary>
+		/// <param name="t"></param>
+		/// <returns></returns>
 		private int CeilIndex(float t)
 		{
-			for (int i = 0; i < colors.Length; i++)
+			for (int i = 0; i < values.Length; i++)
 			{
-				if (colors[i].pos > t)
+				if (values[i].pos > t)
 					return i;
 			}
-			return colors.Length-1;
+			return values.Length-1;
 		}
 
-	
+		public abstract T Lerp(T a, T b, float t);
 	}
 
-	public struct GradientPoint<T>
+    public class ColorGradient : Gradient<uint>
+    {
+        public ColorGradient(GradientPoint<uint>[] values) : base(values)
+        {
+        }
+
+        public override uint Lerp(uint a, uint b, float t)
+        {
+			byte Ared	= (byte)a;
+			byte Agreen	= (byte)(a >> 8);
+			byte Ablue	= (byte)(a >> 16);
+			byte Aalpha	= (byte)(a >> 24);
+
+			byte Bred	= (byte)b;
+			byte Bgreen = (byte)(b >> 8);
+			byte Bblue	= (byte)(b >> 16);
+			byte Balpha = (byte)(b >> 24);
+
+			return 
+				(uint)(
+				((byte)(Ared	+ (Bred - Ared)		* t) << 24) +
+				((byte)(Agreen	+ (Bgreen - Agreen) * t) << 16) +
+				((byte)(Ablue	+ (Bblue - Ablue)	* t) << 8) +
+				((byte)(Aalpha	+ (Balpha - Aalpha) * t) << 0));
+				
+		}
+    }
+
+    public class FloatingGradient : Gradient<float>
+    {
+        public FloatingGradient(GradientPoint<float>[] values) : base(values)
+        {
+        }
+
+        public override float Lerp(float a, float b, float t)
+        {
+			return (a + (b - a) * t);
+		}
+    }
+
+
+
+    public struct GradientPoint<T>
 	{
 		public float pos;
 		public T color;

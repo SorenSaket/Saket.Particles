@@ -89,23 +89,30 @@ namespace Saket.Particles
             var letter_lifetime = new ModuleLifetime();
             var letter_position = new ModulePosition();
             var letter_sheet = new ModuleSheet();
+            var letter_size = new ModuleScale();
+            var gradient = new ColorGradient(new GradientPoint<uint>[] {
+                new GradientPoint<uint>(0,     0xffffffff),
+                new GradientPoint<uint>(0.2f,  0x00ff00ff),
+                new GradientPoint<uint>(0.8f,  0x00cc00ff),
+                new GradientPoint<uint>(1f,    0x00000000)
+                }).Quantize(128).ToArray();
 
-            var gradient = new Gradient<Color>(new GradientPoint<Color>[] {
-                new GradientPoint<Color>(0,     new Color(255,  255,    255,    255)),
-                new GradientPoint<Color>(0.1f,  new Color(0,    255,    0,      255)),
-                new GradientPoint<Color>(0.8f,  new Color(0,    255,    0,      255)),
-                new GradientPoint<Color>(1f,    new Color(0,    255,    0,      0))
-                }).Quantize(128).Select(x=>x.PackedValue).ToArray();
+            var size = new FloatingGradient(new GradientPoint<float>[] {
+                new GradientPoint<float>(0,    0.01f),
+                new GradientPoint<float>(0.2f, 0f),
+                new GradientPoint<float>(1f, 0f),
+                }).Quantize(64).ToArray();
 
             // Letter system
             system_letter = new SimulatorCPU(100000, new IModule[]
             {
                 letter_lifetime,
                 letter_position,
-                new ModuleScale(),
+                letter_size,
                 new ModuleColor(),
                 letter_sheet,
-                new ModuleColorOverLifetime(new TableUint(gradient))
+                new ModuleColorOverLifetime(new TableUint(gradient)),
+                new ModuleScaleOverLifetime(new TableFloat(size))
             });
 
 
@@ -155,8 +162,11 @@ namespace Saket.Particles
                 spawner_position.PositionZ[particle] = z;
 
                 spawner_velocity.VelocityX[particle] = 0;
-                spawner_velocity.VelocityY[particle] = -0.15f;
+                spawner_velocity.VelocityY[particle] = -0.35f;
                 spawner_velocity.VelocityZ[particle] = 0;
+
+                letter_size.ScaleX[particle] = 0;
+                letter_size.ScaleY[particle] = 0;
 
                 spawner_emitter.Timer[particle] = 0;
             });

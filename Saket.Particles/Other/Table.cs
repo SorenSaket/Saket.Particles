@@ -24,11 +24,17 @@ namespace Saket.Particles
 
         public Table(T[] values)
         {
+            if(values == null)
+                throw new System.ArgumentNullException(nameof(values));
+            if (values.Length == 0)
+                throw new System.ArgumentException(nameof(values));
+
+
+
             this.values = values;
 
             int leni = values.Length - 1;
             float lens = values.Length - 1;
-
 
             vec256_len = Vector256.Create(lens);
 
@@ -109,6 +115,7 @@ namespace Saket.Particles
         {
             for (int i = 0; i < values.Length; i++)
             {
+                // TODO check if values Are NAN or inf
                 values[i] += 1;
             }
         }

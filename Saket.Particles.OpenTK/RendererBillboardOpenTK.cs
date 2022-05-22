@@ -227,6 +227,7 @@ namespace Saket.Particles.OpenTK
 
 		public virtual void Update()
         {
+			// Position
 			{
 				// X
 				GL.BindBuffer(BufferTarget.ArrayBuffer, buffer_position_x);
