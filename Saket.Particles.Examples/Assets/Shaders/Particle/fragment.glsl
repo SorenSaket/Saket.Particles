@@ -18,15 +18,15 @@ mat4 thresholdMatrix = mat4(
 
 void main()
 {
+    // Discard pixels from dead particles
     if(vertexLifetime > 0.999)
         discard;
     
-    if(vertexColor.w - thresholdMatrix[int(mod(gl_FragCoord.x , 4))][int(mod(gl_FragCoord.y , 4))] < 0)
+    // Sample Texture
+    vec4 col = texture(texture0, vec3(vertexUV, vertexTexIndex)) * vertexColor;
+    // Apply dithering
+    if(col.w - thresholdMatrix[int(mod(gl_FragCoord.x , 4))][int(mod(gl_FragCoord.y , 4))] < 0)
        discard;
 
-    vec4 col = texture(texture0, vec3(vertexUV, vertexTexIndex)) * vertexColor;
-    
-    if(col.w < 0.1)
-        discard;
     outColor = col;
 }

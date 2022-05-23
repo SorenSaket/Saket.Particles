@@ -36,14 +36,13 @@ void main()
 
     float vx = quad.x*scaleX;
     float vy = quad.y*scaleY;
-
+    
     gl_Position = vec4( 
     vec3(posX,posY,posZ)  // World Space Position Of Particle
-    + CameraRight_worldspace * (vx*cos(rotation) -vy*sin(rotation))  + // X position of quad
-    CameraUp_worldspace * (vx*sin(rotation) + vy*cos(rotation)), // Y position of quad
-    1.0) * view * projection; 
+    + CameraRight_worldspace    * (vx*cos(rotation) - vy*sin(rotation)) + // X position of quad
+    CameraUp_worldspace         * (vx*sin(rotation) + vy*cos(rotation)), // Y position of quad
+    1.0) * view * projection;
     
-
     /*
     gl_Position = vec4(
     posX+(quad.x*cos(rotation) - quad.y*sin(rotation)),

@@ -38,7 +38,7 @@ namespace Saket.Particles.OpenTK
 		// | \  |
 		// |  \ |
 		// BL---BR
-		const float size = 1f;
+		const float size = 0.5f;
 		float[] quadVertices = new float[]{
 			// positions  // UVS
 			-size, -size, 0,0,

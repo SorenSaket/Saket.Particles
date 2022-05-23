@@ -98,10 +98,10 @@ namespace Saket.Particles
                 }).Quantize(128).ToArray();
 
             var size = new FloatingGradient(new GradientPoint<float>[] {
-                new GradientPoint<float>(0,    0.01f),
-                new GradientPoint<float>(0.2f, 0f),
-                new GradientPoint<float>(1f, 0f),
-                }).Quantize(64).ToArray();
+                new GradientPoint<float>(0,    0f),
+                new GradientPoint<float>(0.1f, 0.5f),
+                new GradientPoint<float>(1f,   0.5f),
+                }).Quantize(128).ToArray();
 
             // Letter system
             system_letter = new SimulatorCPU(100000, new IModule[]

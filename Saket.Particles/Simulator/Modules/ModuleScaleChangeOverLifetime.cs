@@ -3,13 +3,13 @@ using System.Runtime.Intrinsics.Arm;
 
 namespace Saket.Particles
 {
-    public class ModuleScaleOverLifetime : IModule, IModuleSimulator
+    public class ModuleScaleChangeOverLifetime : IModule, IModuleSimulator
     {
         public TableFloat deltaCurve;
         ModuleScale scale;
         ModuleLifetime lifetime;
 
-        public ModuleScaleOverLifetime(TableFloat deltaCurve)
+        public ModuleScaleChangeOverLifetime(TableFloat deltaCurve)
         {
             this.deltaCurve = deltaCurve;
         }
