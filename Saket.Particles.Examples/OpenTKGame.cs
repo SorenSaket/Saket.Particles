@@ -37,6 +37,7 @@ namespace Saket.Particles
         public OpenTKGame(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             camera = new Camera(new Vector3(0, 0, 5), 60, Size.X / Size.Y);
+            
             // Generate texture
             {
                 //LoadSpriteSheet("./Assets/Textures/matrix.png", 1,8,8);
@@ -103,8 +104,15 @@ namespace Saket.Particles
                 new GradientPoint<float>(1f,   0.5f),
                 }).Quantize(128).ToArray();
 
+
+            SimulatorCPUSettings simulatorCPUSettings = new SimulatorCPUSettings()
+            {
+                IncreamentalStartup = false,
+                TargetFrameRate = 30
+            };
+
             // Letter system
-            system_letter = new SimulatorCPU(100000, new IModule[]
+            system_letter = new SimulatorCPU(1_000_000, new IModule[]
             {
                 letter_lifetime,
                 letter_position,
@@ -113,7 +121,7 @@ namespace Saket.Particles
                 letter_sheet,
                 new ModuleColorOverLifetime(new TableUint(gradient)),
                 new ModuleScaleOverLifetime(new TableFloat(size))
-            });
+            },0, simulatorCPUSettings);
 
 
 
@@ -132,41 +140,44 @@ namespace Saket.Particles
                 letter_lifetime.Lifetime[particle] = 3f;
                 letter_lifetime.LifeProgress[particle] = 0f;
 
+                letter_size.ScaleX[particle] = 0;
+                letter_size.ScaleY[particle] = 0;
+
             }, 0.2f);
 
             // Spawner System
-            var system_spawner = new SimulatorCPU(2000, new IModule[]
+            var system_spawner = new SimulatorCPU(64000, new IModule[]
             {
                 spawner_position,
                 spawner_velocity,
                 spawner_emitter
-            });
+            },0, simulatorCPUSettings);
+            // Spread out spawners at start
+            for (int i = 0; i < system_spawner.Count; i++)
+            {
+                spawner_position.PositionX[i] = Randoms.Range01() * 500f;
+                spawner_position.PositionY[i] = Randoms.Range01() * 5;
+                spawner_position.PositionZ[i] = Randoms.Range01() * 500f;
+            }
+
 
 
             var emitterSettings = new EmitterSettings()
             {
-                RateOverTime = 200,
+                RateOverTime = 5000,
             };
 
             emitter_spawner = new Emitter(emitterSettings, () =>
             {
                 int particle = system_spawner.GetNextParticle();
-
-                float z = Randoms.Range01() * -200f -15;
-
-                float width = MathF.Tan(MathHelper.DegreesToRadians(60)) * z + 5;
-
-
-                spawner_position.PositionX[particle] = (Randoms.Range01() * width) - width/2f;
-                spawner_position.PositionY[particle] = Randoms.Range01() - width/2f;
-                spawner_position.PositionZ[particle] = z;
+               
+                spawner_position.PositionX[particle] = Randoms.Range01() * 500f;
+                spawner_position.PositionY[particle] = Randoms.Range01()*5;
+                spawner_position.PositionZ[particle] = Randoms.Range01() * 500f;
 
                 spawner_velocity.VelocityX[particle] = 0;
                 spawner_velocity.VelocityY[particle] = -0.35f;
                 spawner_velocity.VelocityZ[particle] = 0;
-
-                letter_size.ScaleX[particle] = 0;
-                letter_size.ScaleY[particle] = 0;
 
                 spawner_emitter.Timer[particle] = 0;
             });
@@ -284,6 +295,7 @@ namespace Saket.Particles
             GL.ClearStencil(0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.StencilBufferBit | ClearBufferMask.DepthBufferBit);
 
+
             shaderParticle.Use();
             shaderParticle.SetMatrix4("view", camera.ViewMatrix);
             shaderParticle.SetMatrix4("projection", camera.ProjectionMatrix);
@@ -371,7 +383,7 @@ namespace Saket.Particles
                 else
                     Close();
             }
-
+            
             if(previousTick != system_letter.Tick)
             {
                 renderer.Update(); 
